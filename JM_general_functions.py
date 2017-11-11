@@ -184,6 +184,42 @@ def snipper(data, timelock, fs = 1, t2sMap = [], preTrial=10, trialLength=30,
         pps = bins/totaltime
               
     return snips, pps
+
+"""
+This function gets extracts blue trace, uv trace, and noise index and
+outputs the data as a dictionary by default. If no random events are given then
+no noise index is produced.
+"""
+
+def mastersnipper(x, events,
+                  bins=300,
+                  noisethreshold=10,
+                  output_as_dict = True):
+    
+    blueTrials,_ = jmf.snipper(x.data, events,
+                               t2sMap=x.t2sMap,
+                               fs=x.fs,
+                               bins=bins)        
+    uvTrials,_ = jmf.snipper(x.datauv, events,
+                               t2sMap=x.t2sMap,
+                               fs=x.fs,
+                               bins=bins) 
+    bgMAD = jmf.findnoise(x.data, x.randomevents,
+                          t2sMap=x.t2sMap, fs=x.fs, bins=bins,
+                          method='sum')        
+    sigSum = [np.sum(abs(i)) for i in blueTrials]
+    sigSD = [np.std(i) for i in blueTrials]
+    noiseindex = [i > bgMAD*threshold for i in sigSum]
+
+    if output_as_dict == True:
+        output = {}
+        output['blue'] = blueTrials
+        output['uv'] = uvTrials
+        output['noise'] = noiseindex
+        return output
+    else:
+        return blueTrials, uvTrials, noiseindex
+ 
 """
 This function will check for traces that are outliers or contain a large amount
 of noise, relative to other trials (or relative to the whole data file.

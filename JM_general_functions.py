@@ -193,18 +193,18 @@ no noise index is produced.
 
 def mastersnipper(x, events,
                   bins=300,
-                  noisethreshold=10,
+                  threshold=10,
                   output_as_dict = True):
     
-    blueTrials,_ = jmf.snipper(x.data, events,
+    blueTrials,_ = snipper(x.data, events,
                                t2sMap=x.t2sMap,
                                fs=x.fs,
                                bins=bins)        
-    uvTrials,_ = jmf.snipper(x.datauv, events,
+    uvTrials,_ = snipper(x.dataUV, events,
                                t2sMap=x.t2sMap,
                                fs=x.fs,
                                bins=bins) 
-    bgMAD = jmf.findnoise(x.data, x.randomevents,
+    bgMAD = findnoise(x.data, x.randomevents,
                           t2sMap=x.t2sMap, fs=x.fs, bins=bins,
                           method='sum')        
     sigSum = [np.sum(abs(i)) for i in blueTrials]
@@ -243,9 +243,9 @@ def removenoise(snipsIn, noiseindex):
     snipsOut = np.array([x for (x,v) in zip(snipsIn, noiseindex) if not v])   
     return snipsOut
 
-def findphotodiff(blue, UV, noise):
-    blueNoNoise = removenoise(blue, noise)
-    UVNoNoise = removenoise(UV, noise)
+def findphotodiff(snips):
+    blueNoNoise = removenoise(snips['blue'], snips['noise'])
+    UVNoNoise = removenoise(snips['uv'], snips['noise'])
     diff = blueNoNoise-UVNoNoise
     return diff
 

@@ -211,14 +211,17 @@ def mastersnipper(x, events,
     sigSD = [np.std(i) for i in blueTrials]
     noiseindex = [i > bgMAD*threshold for i in sigSum]
 
+    diffTrials = findphotodiff(blueTrials, uvTrials, noiseindex)
+        
     if output_as_dict == True:
         output = {}
         output['blue'] = blueTrials
         output['uv'] = uvTrials
         output['noise'] = noiseindex
+        output['diff'] = diffTrials
         return output
     else:
-        return blueTrials, uvTrials, noiseindex
+        return blueTrials, uvTrials, noiseindex, diffTrials
  
 """
 This function will check for traces that are outliers or contain a large amount
@@ -243,11 +246,11 @@ def removenoise(snipsIn, noiseindex):
     snipsOut = np.array([x for (x,v) in zip(snipsIn, noiseindex) if not v])   
     return snipsOut
 
-def findphotodiff(snips):
-    blueNoNoise = removenoise(snips['blue'], snips['noise'])
-    UVNoNoise = removenoise(snips['uv'], snips['noise'])
-    diff = blueNoNoise-UVNoNoise
-    return diff
+def findphotodiff(blue, UV, noise):
+    blueNoNoise = removenoise(blue, noise)
+    UVNoNoise = removenoise(UV, noise)
+    diffSig = blueNoNoise-UVNoNoise
+    return diffSig
 
 def makerandomevents(minTime, maxTime, spacing = 77, n=100):
     events = []

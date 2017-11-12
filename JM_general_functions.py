@@ -362,7 +362,7 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
     lickData['rILIs'] = [x for x in lickData['ilis'] if x > runThreshold]
     try:
         lickData['hist'] = np.histogram(lickData['licks'][1:], 
-                                    range=(0, 3600), bins=(3600/binsize),
+                                    range=(0, 3600), bins=int((3600/binsize)),
                                           density=histDensity)[0]
     except TypeError:
         print('Problem making histograms of lick data')

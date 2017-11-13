@@ -566,33 +566,29 @@ def cumulativelickFig(ax, firstlick, normed=True, color='g'):
 
 def latencyFig(ax, x):
     lats = []
+    latlabels = []
+    colors = []
     try:
         lats.append(x.left['lats'])
+        latlabels.append(x.left['subs'][:3])
+        colors.append(x.left['color'])
     except:
         pass
     
     try:
         lats.append(x.right['lats'])
+        latlabels.append(x.right['subs'][:3])
+        colors.append(x.right['color'])
     except:
         pass
     
-    print(np.shape(lats))
     for x, vals in enumerate(lats):
-        print(x)
-        print(vals)
-        ax.bar(x+1, np.nanmean(vals), facecolor='grey', edgecolor='none',zorder=-1)
+        ax.bar(x+1, np.nanmean(vals), facecolor=colors[x], edgecolor='none',zorder=-1)
         ax.scatter((x+1)*np.ones([len(vals)]), vals, c='none', edgecolors='k', zorder=1)
-
-    
-#    ax.bar([1, 2], [np.nanmean(latsL), np.nanmean(latsR)],
-#           facecolor='grey', edgecolor='none',zorder=-1)
-#        
-#    ax.scatter(np.ones([len(latsL)]),latsL, c='none', edgecolors='k', zorder=1)
-#    ax.scatter(2*np.ones([len(latsR)]),latsR, c='none', edgecolors='k', zorder=1)
-#    
+   
     ax.set_xlim([0, 3])
-#    ax.set_xticks([1, 2])
-#    ax.set_xticklabels([sessiondata.bottleL, sessiondata.bottleR])
+    ax.set_xticks(np.arange(1, len(lats)+1))
+    ax.set_xticklabels(latlabels)
     ax.set_ylabel('Latency (s)')
     
 def setsameaxislimits(axes, axis='y'):

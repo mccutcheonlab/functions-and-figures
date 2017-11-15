@@ -194,16 +194,23 @@ no noise index is produced.
 def mastersnipper(x, events,
                   bins=300,
                   threshold=10,
+                  preTrial=10,
+                  trialLength=30,
+                  peak_between_time=[0, 1],
                   output_as_dict = True):
     
     blueTrials,_ = snipper(x.data, events,
                                t2sMap=x.t2sMap,
                                fs=x.fs,
-                               bins=bins)        
+                               bins=bins,
+                               preTrial=preTrial,
+                               trialLength=trialLength)        
     uvTrials,_ = snipper(x.dataUV, events,
                                t2sMap=x.t2sMap,
                                fs=x.fs,
-                               bins=bins) 
+                               bins=bins,
+                               preTrial=preTrial,
+                               trialLength=trialLength) 
     bgMAD = findnoise(x.data, x.randomevents,
                           t2sMap=x.t2sMap, fs=x.fs, bins=bins,
                           method='sum')        
@@ -212,6 +219,11 @@ def mastersnipper(x, events,
     noiseindex = [i > bgMAD*threshold for i in sigSum]
 
     diffTrials = findphotodiff(blueTrials, uvTrials, noiseindex)
+    bin2s = bins/trialLength
+    peakbins = [int((preTrial+peak_between_time[0])*bin2s),
+                int((preTrial+peak_between_time[1])*bin2s)]
+    print(peakbins)
+    peak = [np.mean(trial[peakbins[0]:peakbins[1]]) for trial in diffTrials]
         
     if output_as_dict == True:
         output = {}
@@ -219,6 +231,7 @@ def mastersnipper(x, events,
         output['uv'] = uvTrials
         output['noise'] = noiseindex
         output['diff'] = diffTrials
+        output['peak'] = peak
         return output
     else:
         return blueTrials, uvTrials, noiseindex, diffTrials

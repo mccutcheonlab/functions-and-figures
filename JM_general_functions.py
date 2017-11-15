@@ -222,7 +222,6 @@ def mastersnipper(x, events,
     bin2s = bins/trialLength
     peakbins = [int((preTrial+peak_between_time[0])*bin2s),
                 int((preTrial+peak_between_time[1])*bin2s)]
-    print(peakbins)
     peak = [np.mean(trial[peakbins[0]:peakbins[1]]) for trial in diffTrials]
         
     if output_as_dict == True:

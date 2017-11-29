@@ -196,6 +196,7 @@ def mastersnipper(x, events,
                   preTrial=10,
                   trialLength=30,
                   threshold=10,
+                  preTrial=10,
                   output_as_dict = True):
     
     blueTrials,_ = snipper(x.data, events,
@@ -218,6 +219,10 @@ def mastersnipper(x, events,
     noiseindex = [i > bgMAD*threshold for i in sigSum]
 
     diffTrials = findphotodiff(blueTrials, uvTrials, noiseindex)
+    bin2s = bins/trialLength
+    peakbins = [int((preTrial+peak_between_time[0])*bin2s),
+                int((preTrial+peak_between_time[1])*bin2s)]
+    peak = [np.mean(trial[peakbins[0]:peakbins[1]]) for trial in diffTrials]
         
     if output_as_dict == True:
         output = {}

@@ -196,8 +196,6 @@ def mastersnipper(x, events,
                   preTrial=10,
                   trialLength=30,
                   threshold=10,
-                  preTrial=10,
-                  trialLength=30,
                   peak_between_time=[0, 1],
                   output_as_dict = True):
     

@@ -197,6 +197,8 @@ def mastersnipper(x, events,
                   trialLength=30,
                   threshold=10,
                   preTrial=10,
+                  trialLength=30,
+                  peak_between_time=[0, 1],
                   output_as_dict = True):
     
     blueTrials,_ = snipper(x.data, events,
@@ -230,6 +232,7 @@ def mastersnipper(x, events,
         output['uv'] = uvTrials
         output['noise'] = noiseindex
         output['diff'] = diffTrials
+        output['peak'] = peak
         return output
     else:
         return blueTrials, uvTrials, noiseindex, diffTrials

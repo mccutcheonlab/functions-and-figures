@@ -193,17 +193,23 @@ no noise index is produced.
 
 def mastersnipper(x, events,
                   bins=300,
+                  preTrial=10,
+                  trialLength=30,
                   threshold=10,
                   output_as_dict = True):
     
     blueTrials,_ = snipper(x.data, events,
                                t2sMap=x.t2sMap,
                                fs=x.fs,
-                               bins=bins)        
+                               bins=bins,
+                               preTrial=preTrial,
+                               trialLength=trialLength)        
     uvTrials,_ = snipper(x.dataUV, events,
                                t2sMap=x.t2sMap,
                                fs=x.fs,
-                               bins=bins) 
+                               bins=bins,
+                               preTrial=preTrial,
+                               trialLength=trialLength) 
     bgMAD = findnoise(x.data, x.randomevents,
                           t2sMap=x.t2sMap, fs=x.fs, bins=bins,
                           method='sum')        

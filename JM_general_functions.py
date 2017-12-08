@@ -463,4 +463,10 @@ def distractionCalc2(licks, post=1, pre=1):
                 (nplus2-n < post) & (n-nminus1 > pre)]
     # print(distimes)
     return distimes
+
+
+def sidakcorr(robj, ncomps=3):
+    pval = (list(robj.rx('p.value'))[0])[0]
+    corr_p = 1-((1-pval)**ncomps)   
+    return corr_p
     

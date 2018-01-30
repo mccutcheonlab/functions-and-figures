@@ -288,12 +288,9 @@ def trialsMultFig(ax, trials, pps=1, preTrial=10, scale=5,
               ylabel='',
               linecolor=['m', 'b'],):
     
-    print(np.shape(trials))
     for i in [0, 1]:
         y = trials[i].transpose()   
         ax.plot(y, c=linecolor[i], linewidth=1)
-        
-    print(ax.get_xlim())
      
     ax.set(ylabel = ylabel)
     ax.xaxis.set_visible(False)
@@ -312,8 +309,6 @@ def trialsMultFig(ax, trials, pps=1, preTrial=10, scale=5,
     ax.spines['bottom'].set_visible(False)
     
     xevent = pps * preTrial
-    print(xevent)
-    print(pps)
     ax.plot([xevent, xevent],[ax.get_ylim()[0], ax.get_ylim()[1] - yrange/20],'--')
     ax.text(xevent, ax.get_ylim()[1], eventText, ha='center',va='bottom')
     

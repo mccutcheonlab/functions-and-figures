@@ -100,23 +100,26 @@ def remcheck(val, range1, range2):
     
 def random_array(dims,n, multiplier = 10):
     
+    data = []
     import numpy as np
-    
-    if len(dims) == 1:
-        data = np.empty((dims), dtype=np.object)
-        for i,j in enumerate(data):
-            data[i] = np.random.random((n))*multiplier
-    
-    elif len(dims) == 2:
-        data = np.empty((dims), dtype=np.object)        
-        for i in range(np.shape(data)[0]):
-            for j in range(np.shape(data)[1]):
-                data[i][j] = np.random.random((n))*multiplier
+    try:
+        if len(dims) == 2:
+            data = np.empty((dims), dtype=np.object)        
+            for i in range(np.shape(data)[0]):
+                for j in range(np.shape(data)[1]):
+                    data[i][j] = np.random.random((n))*multiplier
+        elif len(dims) > 2:
+            print('Too many dimensions!')
+            return
         
-    else:
-        print('Too many dimensions!')
-        data = []
-        
+        elif len(dims) == 1:
+            data = np.empty((dims), dtype=np.object)
+            for i,j in enumerate(data):
+                data[i] = np.random.random((n))*multiplier
+    except TypeError:
+        print('Dimensions need to be in a list or matrix')
+        return
+
     return data
 
 def med_abs_dev(data, b=1.4826):

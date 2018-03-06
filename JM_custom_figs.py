@@ -76,6 +76,7 @@ def barscatter(data, transpose = False,
                 items[i][j] = len(data[i][j])
         
     else:
+        print('here I am')
         grouped = False
         paired = False
         barspergroup = 1

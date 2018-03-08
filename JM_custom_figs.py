@@ -135,7 +135,7 @@ def barscatter(data, transpose = False,
                 sclist.append(ax.scatter(x, y, s = scattersize,
                          c = scf,
                          edgecolors = sce,
-                         zorder=1))
+                         zorder=20))
     elif grouped == True:
         for x, Yarray, scf, sce in zip(xvals, data, scfacecolorArray, scedgecolorArray):
             for y in np.transpose(Yarray.tolist()):
@@ -143,7 +143,8 @@ def barscatter(data, transpose = False,
                          color = scatterlinecolor,
                          linewidth=linewidth,
                          markerfacecolor = scf,
-                         markeredgecolor = sce))
+                         markeredgecolor = sce,
+                         zorder=20))
     elif grouped == False:
         for n,_ in enumerate(data[0]):
             y = [y[n-1] for y in data]
@@ -151,7 +152,8 @@ def barscatter(data, transpose = False,
                          color = 'grey',
                          linewidth=linewidth,
                          markerfacecolor = scfacecolorArray[0],
-                         markeredgecolor = scedgecolorArray[0]))
+                         markeredgecolor = scedgecolorArray[0],
+                         zorder=20))
     
     # Label axes
     if ylabel != 'none':

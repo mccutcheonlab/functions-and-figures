@@ -608,4 +608,10 @@ def setsameaxislimits(axes, axis='y'):
 #                         color = scatterlinecolor,
 #                         markerfacecolor = scf,
 #                         markeredgecolor = sce))
+        
+def invisible_axes(ax):
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)
+    for sp in ['left', 'right', 'top', 'bottom']:
+        ax.spines[sp].set_visible(False)
 

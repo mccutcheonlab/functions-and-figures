@@ -293,7 +293,7 @@ def nearestevents(timelock, events, preTrial=10, trialLength=30):
 #        nTrials = 1
     data = []
     start = [x - preTrial for x in timelock]
-    end = [x + trialLength for x in start]
+    end = [x + trialLength - preTrial for x in start]
     for start, end in zip(start, end):
         data.append([x for x in events if (x > start) & (x < end)])
     for i, x in enumerate(data):

@@ -16,41 +16,55 @@ def licklengthFig(ax, data, contents = '', color='grey'):
     ax.set_ylabel('Frequency')
     ax.set_title(contents)
 
-
-
-
-metafile = 'R:\\DA_and_Reward\\fn55\\QPP1_metafile.txt'
-medfolder = 'R:\\DA_and_Reward\\fn55\\QPP-1 (fn55)\\Pretrain 16-05-18\\'
+metafile = 'QPP1_metafile.txt'
+medfolder = 'C:\\Users\\jaimeHP\\Documents\\Test Data\\'
 tablerows, header = jmf.metafilereader(metafile)
 
 data={}
-data['medlicks'] = []
+data['licks'] = []
 data['intake'] = []
+data['nlicks'] = []
+data['offset'] = []
+data['lickdata'] = []
 
 for i in tablerows:
     if i[5] == '16/05/2018':
         file = medfolder + i[0]
-        data['medlicks'].append(jmf.medfilereader(file, varsToExtract=['b', 'c'], remove_var_header=True))
-        data['intake'].append(i[11])
+        medlicks = jmf.medfilereader(file, varsToExtract=['e', 'f'], remove_var_header=True)
+        data['licks'].append(medlicks[0])
+        data['offset'].append(medlicks[1])
+        data['nlicks'].append(len(medlicks[0]))
+        data['intake'].append(int(i[11]))
+        data['lickdata'].append(jmf.lickCalc(medlicks[0], offset=medlicks[1]))
 
 data['licksperml'] = []
-for licks, ml in zip(data['medlicks'], data['intake']):
-    data['licksperml'].append(licks/ml)
+for licks, ml in zip(data['nlicks'], data['intake']):
+    try:
+        data['licksperml'].append(licks/ml)
+    except ZeroDivisionError:
+        data['licksperml'].append(0)
 
+data['median_licklength'] = []
+data['licks_adjusted'] = []
 
-
-
+for i in data['lickdata']:
+    i['median_licklength'] = np.median(i['licklength'])
+    data['median_licklength'].append(i['median_licklength'])
+    data['licks_adjusted'].append(np.sum(i['licklength']/i['median_licklength']))
 
 f1 = plt.figure()
-ax = f1.add_subplot(1,1,1)
-ax.scatter(data['medlicks'], data['intake'])
+ax = f1.add_subplot(1,2,1)
+ax.scatter(data['nlicks'], data['intake'])
 
 average_ratio = np.mean(data['licksperml'])
 sd_ratio = np.std(data['licksperml'])
 
-ax.text(0,0, 'Average {.2f} {.2f} licks per ml'.format(average_ratio, sd_ratio))
+ax.text(0,0, 'Average {:.1f} \u00B1 {:.1f} licks per ml'.format(average_ratio, sd_ratio))
 
+ax2 = f1.add_subplot(1,2,2)
+ax.scatter(data['licks_adjusted'], data['intake'])
 
+plt.show()
 
 print('hey')
 

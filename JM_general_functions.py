@@ -324,7 +324,7 @@ This function will calculate data for bursts from a train of licks. The threshol
 for bursts and clusters can be set. It returns all data as a dictionary.
 """
 def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10, 
-             binsize=60, histDensity = False):
+             binsize=60, histDensity = False, adjustforlonglicks='none'):
     # makes dictionary of data relating to licks and bursts
     if type(licks) != np.ndarray or type(offset) != np.ndarray:
         try:
@@ -342,6 +342,25 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
     else:
         lickData['licklength'] = []
         lickData['longlicks'] = []
+    
+    if adjustforlonglicks != 'none':
+        if len(lickData['longlicks']) == 0:
+            print('No long licks to adjust for.')
+        else:
+            lickData['median_ll'] = np.median(lickData['licklength'])
+            print(lickData['median_ll'])
+            lickData['licks_adj'] = int(np.sum(lickData['licklength'])/lickData['median_ll'])
+            print(lickData['licks_adj'])
+            print(len(licks))
+            if adjustforlonglicks == 'interpolate':
+                licks_new = []
+                for l, off in zip(licks, offset):
+                    x = l
+                    while x < off - lickData['median_ll']:
+                        licks_new.append(x)
+                        x = x + lickData['median_ll']
+                print(len(licks_new))
+        
 
     lickData['licks'] = np.concatenate([[0], licks])
     lickData['ilis'] = np.diff(lickData['licks'])

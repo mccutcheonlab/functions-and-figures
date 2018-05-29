@@ -359,9 +359,8 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
                     while x < off - lickData['median_ll']:
                         licks_new.append(x)
                         x = x + lickData['median_ll']
-                print(len(licks_new))
+                licks = licks_new
         
-
     lickData['licks'] = np.concatenate([[0], licks])
     lickData['ilis'] = np.diff(lickData['licks'])
     lickData['freq'] = 1/np.mean([x for x in lickData['ilis'] if x < burstThreshold])

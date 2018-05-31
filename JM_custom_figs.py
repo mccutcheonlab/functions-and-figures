@@ -52,7 +52,19 @@ def barscatter(data, transpose = False,
                 legendloc='upper right',
                 ax=[]):
 #
-#    if type(data) == float
+    print(np.shape(data))
+    if type(data) != np.ndarray or data.dtype != np.object:
+        dims = np.shape(data)
+        if len(dims) == 2:
+            data = data2obj1D(data)
+
+        elif len(dims) == 3:
+            data = data2obj2D(data)
+              
+        else:
+            print('Cannot interpret data shape. Should be 2 or 3 dimensional array. Exiting function.')
+            return
+
     # Check if transpose = True
     if transpose == True:
         data = np.transpose(data)
@@ -253,6 +265,20 @@ def setcolors(coloroption, colors, barspergroup, nGroups, data, paired_scatter =
         coloroutput = [colors[0] for x in range(len(data.flatten()))]
 
     return coloroutput
+
+def data2obj1D(data):
+    obj = np.empty(len(data), dtype=np.object)
+    for i,x in enumerate(data):
+        obj[i] = np.array(x)  
+    return obj
+
+def data2obj2D(data):
+    obj = np.empty((np.shape(data)[0], np.shape(data)[1]), dtype=np.object)
+    for i,x in enumerate(data):
+        for j,y in enumerate(x):
+            obj[i][j] = np.array(y)
+    return obj
+
 
 # Arguments to include in function
 

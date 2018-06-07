@@ -490,4 +490,34 @@ def sidakcorr(robj, ncomps=3):
     pval = (list(robj.rx('p.value'))[0])[0]
     corr_p = 1-((1-pval)**ncomps)   
     return corr_p
+
+def discrete2continuous(onset, offset=[], nSamples=[], fs=[]):
+    # this function takes timestamp data (e.g. licks) that can include offsets 
+    # as well as onsets, and returns a digital on/off array (y) as well as the 
+    # x output. The number of samples (nSamples) and sample frequency (fs) can 
+    # be input or if they are not (default) it will attempt to calculate them 
+    # based on the timestamp data. It has not been fully stress-tested yet.
     
+    try:
+        fs = int(fs)
+    except TypeError:
+        isis = np.diff(onset)
+        fs = int(1 / (min(isis)/2)) 
+    
+    if len(nSamples) == 0:
+        nSamples = int(fs*max(onset))    
+    
+    outputx = np.linspace(0, nSamples/fs, nSamples)
+    outputy = np.zeros(len(outputx))
+    
+    if len(offset) == 0:
+        for on in onset:
+            idx = (np.abs(outputx - on)).argmin()
+            outputy[idx] = 1
+    else:
+        for i, on in enumerate(onset):
+            start = (np.abs(outputx - on)).argmin()
+            stop = (np.abs(outputx - offset[i])).argmin()
+            outputy[start:stop] = 1
+
+    return outputx, outputy

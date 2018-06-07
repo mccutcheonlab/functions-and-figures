@@ -324,7 +324,7 @@ This function will calculate data for bursts from a train of licks. The threshol
 for bursts and clusters can be set. It returns all data as a dictionary.
 """
 def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10, 
-             binsize=60, histDensity = False):
+             binsize=60, histDensity = False, adjustforlonglicks='none'):
     # makes dictionary of data relating to licks and bursts
     if type(licks) != np.ndarray or type(offset) != np.ndarray:
         try:
@@ -342,7 +342,25 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
     else:
         lickData['licklength'] = []
         lickData['longlicks'] = []
-
+    
+    if adjustforlonglicks != 'none':
+        if len(lickData['longlicks']) == 0:
+            print('No long licks to adjust for.')
+        else:
+            lickData['median_ll'] = np.median(lickData['licklength'])
+            print(lickData['median_ll'])
+            lickData['licks_adj'] = int(np.sum(lickData['licklength'])/lickData['median_ll'])
+            print(lickData['licks_adj'])
+            print(len(licks))
+            if adjustforlonglicks == 'interpolate':
+                licks_new = []
+                for l, off in zip(licks, offset):
+                    x = l
+                    while x < off - lickData['median_ll']:
+                        licks_new.append(x)
+                        x = x + lickData['median_ll']
+                licks = licks_new
+        
     lickData['licks'] = np.concatenate([[0], licks])
     lickData['ilis'] = np.diff(lickData['licks'])
     lickData['freq'] = 1/np.mean([x for x in lickData['ilis'] if x < burstThreshold])
@@ -472,4 +490,34 @@ def sidakcorr(robj, ncomps=3):
     pval = (list(robj.rx('p.value'))[0])[0]
     corr_p = 1-((1-pval)**ncomps)   
     return corr_p
+
+def discrete2continuous(onset, offset=[], nSamples=[], fs=[]):
+    # this function takes timestamp data (e.g. licks) that can include offsets 
+    # as well as onsets, and returns a digital on/off array (y) as well as the 
+    # x output. The number of samples (nSamples) and sample frequency (fs) can 
+    # be input or if they are not (default) it will attempt to calculate them 
+    # based on the timestamp data. It has not been fully stress-tested yet.
     
+    try:
+        fs = int(fs)
+    except TypeError:
+        isis = np.diff(onset)
+        fs = int(1 / (min(isis)/2)) 
+    
+    if len(nSamples) == 0:
+        nSamples = int(fs*max(onset))    
+    
+    outputx = np.linspace(0, nSamples/fs, nSamples)
+    outputy = np.zeros(len(outputx))
+    
+    if len(offset) == 0:
+        for on in onset:
+            idx = (np.abs(outputx - on)).argmin()
+            outputy[idx] = 1
+    else:
+        for i, on in enumerate(onset):
+            start = (np.abs(outputx - on)).argmin()
+            stop = (np.abs(outputx - offset[i])).argmin()
+            outputy[start:stop] = 1
+
+    return outputx, outputy

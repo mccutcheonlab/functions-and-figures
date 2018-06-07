@@ -1,3 +1,5 @@
 
 *.pyc
 *.pyc
+*.pyc
+__pycache__/JM_general_functions.cpython-36.pyc

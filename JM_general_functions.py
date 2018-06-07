@@ -100,23 +100,26 @@ def remcheck(val, range1, range2):
     
 def random_array(dims,n, multiplier = 10):
     
+    data = []
     import numpy as np
-    
-    if len(dims) == 1:
-        data = np.empty((dims), dtype=np.object)
-        for i,j in enumerate(data):
-            data[i] = np.random.random((n))*multiplier
-    
-    elif len(dims) == 2:
-        data = np.empty((dims), dtype=np.object)        
-        for i in range(np.shape(data)[0]):
-            for j in range(np.shape(data)[1]):
-                data[i][j] = np.random.random((n))*multiplier
+    try:
+        if len(dims) == 2:
+            data = np.empty((dims), dtype=np.object)        
+            for i in range(np.shape(data)[0]):
+                for j in range(np.shape(data)[1]):
+                    data[i][j] = np.random.random((n))*multiplier
+        elif len(dims) > 2:
+            print('Too many dimensions!')
+            return
         
-    else:
-        print('Too many dimensions!')
-        data = []
-        
+        elif len(dims) == 1:
+            data = np.empty((dims), dtype=np.object)
+            for i,j in enumerate(data):
+                data[i] = np.random.random((n))*multiplier
+    except TypeError:
+        print('Dimensions need to be in a list or matrix')
+        return
+
     return data
 
 def med_abs_dev(data, b=1.4826):
@@ -184,6 +187,57 @@ def snipper(data, timelock, fs = 1, t2sMap = [], preTrial=10, trialLength=30,
         pps = bins/totaltime
               
     return snips, pps
+
+"""
+This function gets extracts blue trace, uv trace, and noise index and
+outputs the data as a dictionary by default. If no random events are given then
+no noise index is produced.
+"""
+
+def mastersnipper(x, events,
+                  bins=300,
+                  preTrial=10,
+                  trialLength=30,
+                  threshold=10,
+                  peak_between_time=[0, 1],
+                  output_as_dict = True):
+    
+    blueTrials,_ = snipper(x.data, events,
+                               t2sMap=x.t2sMap,
+                               fs=x.fs,
+                               bins=bins,
+                               preTrial=preTrial,
+                               trialLength=trialLength)        
+    uvTrials,_ = snipper(x.dataUV, events,
+                               t2sMap=x.t2sMap,
+                               fs=x.fs,
+                               bins=bins,
+                               preTrial=preTrial,
+                               trialLength=trialLength) 
+    bgMAD = findnoise(x.data, x.randomevents,
+                          t2sMap=x.t2sMap, fs=x.fs, bins=bins,
+                          method='sum')        
+    sigSum = [np.sum(abs(i)) for i in blueTrials]
+    sigSD = [np.std(i) for i in blueTrials]
+    noiseindex = [i > bgMAD*threshold for i in sigSum]
+
+    diffTrials = findphotodiff(blueTrials, uvTrials, noiseindex)
+    bin2s = bins/trialLength
+    peakbins = [int((preTrial+peak_between_time[0])*bin2s),
+                int((preTrial+peak_between_time[1])*bin2s)]
+    peak = [np.mean(trial[peakbins[0]:peakbins[1]]) for trial in diffTrials]
+        
+    if output_as_dict == True:
+        output = {}
+        output['blue'] = blueTrials
+        output['uv'] = uvTrials
+        output['noise'] = noiseindex
+        output['diff'] = diffTrials
+        output['peak'] = peak
+        return output
+    else:
+        return blueTrials, uvTrials, noiseindex, diffTrials
+ 
 """
 This function will check for traces that are outliers or contain a large amount
 of noise, relative to other trials (or relative to the whole data file.
@@ -210,8 +264,8 @@ def removenoise(snipsIn, noiseindex):
 def findphotodiff(blue, UV, noise):
     blueNoNoise = removenoise(blue, noise)
     UVNoNoise = removenoise(UV, noise)
-    diff = blueNoNoise-UVNoNoise
-    return diff
+    diffSig = blueNoNoise-UVNoNoise
+    return diffSig
 
 def makerandomevents(minTime, maxTime, spacing = 77, n=100):
     events = []
@@ -239,7 +293,7 @@ def nearestevents(timelock, events, preTrial=10, trialLength=30):
 #        nTrials = 1
     data = []
     start = [x - preTrial for x in timelock]
-    end = [x + trialLength for x in start]
+    end = [x + trialLength - preTrial for x in start]
     for start, end in zip(start, end):
         data.append([x for x in events if (x > start) & (x < end)])
     for i, x in enumerate(data):
@@ -270,7 +324,7 @@ This function will calculate data for bursts from a train of licks. The threshol
 for bursts and clusters can be set. It returns all data as a dictionary.
 """
 def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10, 
-             binsize=60, histDensity = False):
+             binsize=60, histDensity = False, adjustforlonglicks='none'):
     # makes dictionary of data relating to licks and bursts
     if type(licks) != np.ndarray or type(offset) != np.ndarray:
         try:
@@ -288,7 +342,25 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
     else:
         lickData['licklength'] = []
         lickData['longlicks'] = []
-
+    
+    if adjustforlonglicks != 'none':
+        if len(lickData['longlicks']) == 0:
+            print('No long licks to adjust for.')
+        else:
+            lickData['median_ll'] = np.median(lickData['licklength'])
+            print(lickData['median_ll'])
+            lickData['licks_adj'] = int(np.sum(lickData['licklength'])/lickData['median_ll'])
+            print(lickData['licks_adj'])
+            print(len(licks))
+            if adjustforlonglicks == 'interpolate':
+                licks_new = []
+                for l, off in zip(licks, offset):
+                    x = l
+                    while x < off - lickData['median_ll']:
+                        licks_new.append(x)
+                        x = x + lickData['median_ll']
+                licks = licks_new
+        
     lickData['licks'] = np.concatenate([[0], licks])
     lickData['ilis'] = np.diff(lickData['licks'])
     lickData['freq'] = 1/np.mean([x for x in lickData['ilis'] if x < burstThreshold])
@@ -323,7 +395,7 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
     lickData['rILIs'] = [x for x in lickData['ilis'] if x > runThreshold]
     try:
         lickData['hist'] = np.histogram(lickData['licks'][1:], 
-                                    range=(0, 3600), bins=(3600/binsize),
+                                    range=(0, 3600), bins=int((3600/binsize)),
                                           density=histDensity)[0]
     except TypeError:
         print('Problem making histograms of lick data')
@@ -412,4 +484,40 @@ def distractionCalc2(licks, post=1, pre=1):
                 (nplus2-n < post) & (n-nminus1 > pre)]
     # print(distimes)
     return distimes
+
+
+def sidakcorr(robj, ncomps=3):
+    pval = (list(robj.rx('p.value'))[0])[0]
+    corr_p = 1-((1-pval)**ncomps)   
+    return corr_p
+
+def discrete2continuous(onset, offset=[], nSamples=[], fs=[]):
+    # this function takes timestamp data (e.g. licks) that can include offsets 
+    # as well as onsets, and returns a digital on/off array (y) as well as the 
+    # x output. The number of samples (nSamples) and sample frequency (fs) can 
+    # be input or if they are not (default) it will attempt to calculate them 
+    # based on the timestamp data. It has not been fully stress-tested yet.
     
+    try:
+        fs = int(fs)
+    except TypeError:
+        isis = np.diff(onset)
+        fs = int(1 / (min(isis)/2)) 
+    
+    if len(nSamples) == 0:
+        nSamples = int(fs*max(onset))    
+    
+    outputx = np.linspace(0, nSamples/fs, nSamples)
+    outputy = np.zeros(len(outputx))
+    
+    if len(offset) == 0:
+        for on in onset:
+            idx = (np.abs(outputx - on)).argmin()
+            outputy[idx] = 1
+    else:
+        for i, on in enumerate(onset):
+            start = (np.abs(outputx - on)).argmin()
+            stop = (np.abs(outputx - offset[i])).argmin()
+            outputy[start:stop] = 1
+
+    return outputx, outputy

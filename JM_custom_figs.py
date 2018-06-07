@@ -52,7 +52,19 @@ def barscatter(data, transpose = False,
                 legendloc='upper right',
                 ax=[]):
 #
-#    if type(data) == float
+    print(np.shape(data))
+    if type(data) != np.ndarray or data.dtype != np.object:
+        dims = np.shape(data)
+        if len(dims) == 2:
+            data = data2obj1D(data)
+
+        elif len(dims) == 3:
+            data = data2obj2D(data)
+              
+        else:
+            print('Cannot interpret data shape. Should be 2 or 3 dimensional array. Exiting function.')
+            return
+
     # Check if transpose = True
     if transpose == True:
         data = np.transpose(data)
@@ -77,7 +89,6 @@ def barscatter(data, transpose = False,
         
     else:
         grouped = False
-        paired = False
         barspergroup = 1
         
         for i in range(np.shape(data)[0]):
@@ -136,15 +147,25 @@ def barscatter(data, transpose = False,
                 sclist.append(ax.scatter(x, y, s = scattersize,
                          c = scf,
                          edgecolors = sce,
-                         zorder=1))
-    else:
+                         zorder=20))
+    elif grouped == True:
         for x, Yarray, scf, sce in zip(xvals, data, scfacecolorArray, scedgecolorArray):
             for y in np.transpose(Yarray.tolist()):
                 sclist.append(ax.plot(x, y, '-o', markersize = scattersize/10,
                          color = scatterlinecolor,
                          linewidth=linewidth,
                          markerfacecolor = scf,
-                         markeredgecolor = sce))
+                         markeredgecolor = sce,
+                         zorder=20))
+    elif grouped == False:
+        for n,_ in enumerate(data[0]):
+            y = [y[n-1] for y in data]
+            sclist.append(ax.plot(xvals, y, '-o', markersize = scattersize/10,
+                         color = 'grey',
+                         linewidth=linewidth,
+                         markerfacecolor = scfacecolorArray[0],
+                         markeredgecolor = scedgecolorArray[0],
+                         zorder=20))
     
     # Label axes
     if ylabel != 'none':
@@ -245,6 +266,20 @@ def setcolors(coloroption, colors, barspergroup, nGroups, data, paired_scatter =
 
     return coloroutput
 
+def data2obj1D(data):
+    obj = np.empty(len(data), dtype=np.object)
+    for i,x in enumerate(data):
+        obj[i] = np.array(x)  
+    return obj
+
+def data2obj2D(data):
+    obj = np.empty((np.shape(data)[0], np.shape(data)[1]), dtype=np.object)
+    for i,x in enumerate(data):
+        for j,y in enumerate(x):
+            obj[i][j] = np.array(y)
+    return obj
+
+
 # Arguments to include in function
 
 def trialsFig(ax, trials, pps=1, preTrial=10, scale=5, noiseindex = [],
@@ -288,12 +323,9 @@ def trialsMultFig(ax, trials, pps=1, preTrial=10, scale=5,
               ylabel='',
               linecolor=['m', 'b'],):
     
-    print(np.shape(trials))
     for i in [0, 1]:
         y = trials[i].transpose()   
         ax.plot(y, c=linecolor[i], linewidth=1)
-        
-    print(ax.get_xlim())
      
     ax.set(ylabel = ylabel)
     ax.xaxis.set_visible(False)
@@ -312,8 +344,6 @@ def trialsMultFig(ax, trials, pps=1, preTrial=10, scale=5,
     ax.spines['bottom'].set_visible(False)
     
     xevent = pps * preTrial
-    print(xevent)
-    print(pps)
     ax.plot([xevent, xevent],[ax.get_ylim()[0], ax.get_ylim()[1] - yrange/20],'--')
     ax.text(xevent, ax.get_ylim()[1], eventText, ha='center',va='bottom')
     
@@ -564,26 +594,31 @@ def cumulativelickFig(ax, firstlick, normed=True, color='g'):
     
     return ax, a
 
-def latencyFig(ax, sessiondata):
+def latencyFig(ax, x):
+    lats = []
+    latlabels = []
+    colors = []
     try:
-        latsL = sessiondata.latsL
-    except AttributeError:
-        latsL = []
-        
+        lats.append(x.left['lats'])
+        latlabels.append(x.left['subs'][:3])
+        colors.append(x.left['color'])
+    except:
+        pass
+    
     try:
-        latsR = sessiondata.latsR
-    except AttributeError:
-        latsR = []
+        lats.append(x.right['lats'])
+        latlabels.append(x.right['subs'][:3])
+        colors.append(x.right['color'])
+    except:
+        pass
     
-    ax.bar([1, 2], [np.nanmean(latsL), np.nanmean(latsR)],
-           facecolor='grey', edgecolor='none',zorder=-1)
-        
-    ax.scatter(np.ones([len(latsL)]),latsL, c='none', edgecolors='k', zorder=1)
-    ax.scatter(2*np.ones([len(latsR)]),latsR, c='none', edgecolors='k', zorder=1)
-    
+    for x, vals in enumerate(lats):
+        ax.bar(x+1, np.nanmean(vals), facecolor=colors[x], edgecolor='none',zorder=-1)
+        ax.scatter((x+1)*np.ones([len(vals)]), vals, c='none', edgecolors='k', zorder=1)
+   
     ax.set_xlim([0, 3])
-    ax.set_xticks([1, 2])
-    ax.set_xticklabels([sessiondata.bottleL, sessiondata.bottleR])
+    ax.set_xticks(np.arange(1, len(lats)+1))
+    ax.set_xticklabels(latlabels)
     ax.set_ylabel('Latency (s)')
     
 def setsameaxislimits(axes, axis='y'):
@@ -601,4 +636,10 @@ def setsameaxislimits(axes, axis='y'):
 #                         color = scatterlinecolor,
 #                         markerfacecolor = scf,
 #                         markeredgecolor = sce))
+        
+def invisible_axes(ax):
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)
+    for sp in ['left', 'right', 'top', 'bottom']:
+        ax.spines[sp].set_visible(False)
 

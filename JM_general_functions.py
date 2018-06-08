@@ -363,6 +363,7 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
         
     lickData['licks'] = np.concatenate([[0], licks])
     lickData['ilis'] = np.diff(lickData['licks'])
+    lickData['shilis'] = [x for x in lickData['ilis'] if x < burstThreshold]
     lickData['freq'] = 1/np.mean([x for x in lickData['ilis'] if x < burstThreshold])
     lickData['total'] = len(licks)
     
@@ -377,8 +378,10 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
     lickData['bNum'] = len(lickData['bStart'])
     if lickData['bNum'] > 0:
         lickData['bMean'] = np.nanmean(lickData['bLicks'])
+        lickData['bMean-first3'] = np.nanmean(lickData['bLicks'][:3])
     else:
         lickData['bMean'] = 0
+        lickData['bMean-first3'] = 0
     
     lickData['bILIs'] = [x for x in lickData['ilis'] if x > burstThreshold]
 

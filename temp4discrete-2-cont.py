@@ -43,7 +43,7 @@ A,header = jmf.metafilereader(cwd + '\\' + metafile)
 
 
 medfolder = 'R:\\DA_and_Reward\\fn55\\QPP-1 (fn55)\\20-05-18 Conditioning 4\\'
-medfile=A[109][0]
+medfile=A[110][0]
 filename=medfolder+medfile
 
 onsets, offsets = jmf.medfilereader(filename, 
@@ -58,13 +58,15 @@ ax = fig.add_subplot(1,1,1)
 ax.plot(t, y)
 
 
-y = y[:100000]
+#y = y[:100000]
 
-Y = np.fft.fft(y)
-freq = np.fft.fftfreq(len(y), t[1] - t[0])
+Y = np.fft.rfft(y)
+freq = np.fft.rfftfreq(len(y), t[1] - t[0])
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
+ax.set_xlim(-0.1,30)
+ax.set_ylim(-1000, 4000)
 ax.plot(freq, np.abs(Y))
 
 

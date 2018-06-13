@@ -348,10 +348,7 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
             print('No long licks to adjust for.')
         else:
             lickData['median_ll'] = np.median(lickData['licklength'])
-            print(lickData['median_ll'])
             lickData['licks_adj'] = int(np.sum(lickData['licklength'])/lickData['median_ll'])
-            print(lickData['licks_adj'])
-            print(len(licks))
             if adjustforlonglicks == 'interpolate':
                 licks_new = []
                 for l, off in zip(licks, offset):
@@ -361,8 +358,8 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
                         x = x + lickData['median_ll']
                 licks = licks_new
         
-    lickData['licks'] = np.concatenate([[0], licks])
-    lickData['ilis'] = np.diff(lickData['licks'])
+    lickData['licks'] = licks
+    lickData['ilis'] = np.diff(np.concatenate([[0], licks]))
     lickData['shilis'] = [x for x in lickData['ilis'] if x < burstThreshold]
     lickData['freq'] = 1/np.mean([x for x in lickData['ilis'] if x < burstThreshold])
     lickData['total'] = len(licks)

@@ -47,6 +47,7 @@ def barscatter(data, transpose = False,
                 xlabel = 'none',
                 grouplabel = 'auto',
                 itemlabel = 'none',
+                barlabels = [],
                 yaxisparams = 'auto',
                 show_legend = 'none',
                 legendloc='upper right',
@@ -190,6 +191,15 @@ def barscatter(data, transpose = False,
         plt.tick_params(labelbottom='off')
     else:
         plt.xticks(range(1,nGroups+1), grouplabel)
+        
+    if len(barlabels) > 0:
+        if len(barlabels) != len(barx):
+            print('Wrong number of bar labels for number of bars!')
+        else:
+            yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
+            offset = ax.get_ylim()[0] - yrange/25
+            for x, label in zip(barx, barlabels):
+                ax.text(x, offset, label, va='top', ha='center')
     
     # Hide the right and top spines and set bottom to zero
     ax.spines['right'].set_visible(False)

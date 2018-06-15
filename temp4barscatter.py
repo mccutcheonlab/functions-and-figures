@@ -27,4 +27,6 @@ pcp_d3 = [5,9,9]
 
 data = [[sal_d1, sal_d2, sal_d3], [pcp_d1, pcp_d2, pcp_d3]]
 
-jmfig.barscatter(data, transpose=True, paired=True)
+labels = ['a', 't', 'c', 'f', 'e', 's']
+
+jmfig.barscatter(data, transpose=True, paired=True, barlabels=labels)

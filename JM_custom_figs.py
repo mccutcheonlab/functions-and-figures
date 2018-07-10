@@ -48,6 +48,7 @@ def barscatter(data, transpose = False,
                 grouplabel = 'auto',
                 itemlabel = 'none',
                 barlabels = [],
+                barlabeloffset=25,
                 yaxisparams = 'auto',
                 show_legend = 'none',
                 legendloc='upper right',
@@ -197,7 +198,7 @@ def barscatter(data, transpose = False,
             print('Wrong number of bar labels for number of bars!')
         else:
             yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
-            offset = ax.get_ylim()[0] - yrange/25
+            offset = ax.get_ylim()[0] - yrange/barlabeloffset
             for x, label in zip(barx, barlabels):
                 ax.text(x, offset, label, va='top', ha='center')
     

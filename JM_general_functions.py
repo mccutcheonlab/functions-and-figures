@@ -293,7 +293,7 @@ def nearestevents(timelock, events, preTrial=10, trialLength=30):
 #        nTrials = 1
     data = []
     start = [x - preTrial for x in timelock]
-    end = [x + trialLength - preTrial for x in start]
+    end = [x + trialLength for x in start]
     for start, end in zip(start, end):
         data.append([x for x in events if (x > start) & (x < end)])
     for i, x in enumerate(data):
@@ -335,9 +335,9 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
             return
 
     lickData = {}
-    
-    if len(offset) > 0:
-        lickData['licklength'] = offset - licks
+
+    if len(offset) > 0:        
+        lickData['licklength'] = offset - licks[:len(offset)]
         lickData['longlicks'] = [x for x in lickData['licklength'] if x > 0.3]
     else:
         lickData['licklength'] = []
@@ -348,10 +348,7 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
             print('No long licks to adjust for.')
         else:
             lickData['median_ll'] = np.median(lickData['licklength'])
-            print(lickData['median_ll'])
             lickData['licks_adj'] = int(np.sum(lickData['licklength'])/lickData['median_ll'])
-            print(lickData['licks_adj'])
-            print(len(licks))
             if adjustforlonglicks == 'interpolate':
                 licks_new = []
                 for l, off in zip(licks, offset):
@@ -361,8 +358,9 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
                         x = x + lickData['median_ll']
                 licks = licks_new
         
-    lickData['licks'] = np.concatenate([[0], licks])
-    lickData['ilis'] = np.diff(lickData['licks'])
+    lickData['licks'] = licks
+    lickData['ilis'] = np.diff(np.concatenate([[0], licks]))
+    lickData['shilis'] = [x for x in lickData['ilis'] if x < burstThreshold]
     lickData['freq'] = 1/np.mean([x for x in lickData['ilis'] if x < burstThreshold])
     lickData['total'] = len(licks)
     
@@ -377,8 +375,10 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
     lickData['bNum'] = len(lickData['bStart'])
     if lickData['bNum'] > 0:
         lickData['bMean'] = np.nanmean(lickData['bLicks'])
+        lickData['bMean-first3'] = np.nanmean(lickData['bLicks'][:3])
     else:
         lickData['bMean'] = 0
+        lickData['bMean-first3'] = 0
     
     lickData['bILIs'] = [x for x in lickData['ilis'] if x > burstThreshold]
 

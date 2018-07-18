@@ -47,6 +47,8 @@ def barscatter(data, transpose = False,
                 xlabel = 'none',
                 grouplabel = 'auto',
                 itemlabel = 'none',
+                barlabels = [],
+                barlabeloffset=25,
                 yaxisparams = 'auto',
                 show_legend = 'none',
                 legendloc='upper right',
@@ -189,6 +191,15 @@ def barscatter(data, transpose = False,
         plt.tick_params(labelbottom='off')
     else:
         plt.xticks(range(1,nGroups+1), grouplabel)
+        
+    if len(barlabels) > 0:
+        if len(barlabels) != len(barx):
+            print('Wrong number of bar labels for number of bars!')
+        else:
+            yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
+            offset = ax.get_ylim()[0] - yrange/barlabeloffset
+            for x, label in zip(barx, barlabels):
+                ax.text(x, offset, label, va='top', ha='center')
     
     # Hide the right and top spines and set bottom to zero
     ax.spines['right'].set_visible(False)
@@ -642,3 +653,12 @@ def invisible_axes(ax):
     for sp in ['left', 'right', 'top', 'bottom']:
         ax.spines[sp].set_visible(False)
 
+def shadedError(ax, yarray, linecolor='black', errorcolor = 'xkcd:silver'):
+    yarray = np.array(yarray)
+    y = np.mean(yarray)
+    yerror = np.std(yarray)/np.sqrt(len(yarray))
+    x = np.arange(0, len(y))
+    ax.plot(x, y, color=linecolor)
+    ax.fill_between(x, y-yerror, y+yerror, color=errorcolor, alpha=0.4)
+    
+    return ax

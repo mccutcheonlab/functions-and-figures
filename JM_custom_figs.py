@@ -48,7 +48,8 @@ def barscatter(data, transpose = False,
                 grouplabel = 'auto',
                 itemlabel = 'none',
                 barlabels = [],
-                barlabeloffset=25,
+                barlabeloffset=0.1,
+                grouplabeloffset=0.2,
                 yaxisparams = 'auto',
                 show_legend = 'none',
                 legendloc='upper right',
@@ -186,18 +187,25 @@ def barscatter(data, transpose = False,
         which='both',      # both major and minor ticks are affected
         bottom='off',      # ticks along the bottom edge are off
         top='off') # labels along the bottom edge are off
-    
+
     if grouplabel == 'auto':
         plt.tick_params(labelbottom='off')
     else:
-        plt.xticks(range(1,nGroups+1), grouplabel)
+        if len(barlabels) > 0:
+            plt.tick_params(labelbottom='off')
+            yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
+            offset = ax.get_ylim()[0] - yrange*grouplabeloffset
+            for idx, label in enumerate(grouplabel):
+                ax.text(idx+1, offset, label, va='top', ha='center')
+        else:
+            plt.xticks(range(1,nGroups+1), grouplabel)
         
     if len(barlabels) > 0:
         if len(barlabels) != len(barx):
             print('Wrong number of bar labels for number of bars!')
         else:
             yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
-            offset = ax.get_ylim()[0] - yrange/barlabeloffset
+            offset = ax.get_ylim()[0] - yrange*barlabeloffset
             for x, label in zip(barx, barlabels):
                 ax.text(x, offset, label, va='top', ha='center')
     

@@ -30,6 +30,7 @@ def barscatter(data, transpose = False,
                 groupwidth = .75,
                 barwidth = .9,
                 paired = False,
+                spaced = False,
                 barfacecoloroption = 'same', # other options 'between' or 'individual'
                 barfacecolor = ['white'],
                 baredgecoloroption = 'same',
@@ -57,7 +58,7 @@ def barscatter(data, transpose = False,
 
     if type(data) != np.ndarray or data.dtype != np.object:
         dims = np.shape(data)
-        if len(dims) == 2:
+        if len(dims) == 2 or len(dims) == 1:
             data = data2obj1D(data)
 
         elif len(dims) == 3:

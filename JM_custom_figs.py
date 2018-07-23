@@ -147,10 +147,17 @@ def barscatter(data, transpose = False,
         for x, Yarray, scf, sce  in zip(xvals.flatten(), data.flatten(),
                                         scfacecolorArray, scedgecolorArray):
             for y in Yarray:
-                sclist.append(ax.scatter(x, y, s = scattersize,
-                         c = scf,
-                         edgecolors = sce,
-                         zorder=20))
+                if spaced == True:
+                    sclist.append(ax.scatter(x+np.random.random(size=1)*barallocation, y, s = scattersize,
+                             c = scf,
+                             edgecolors = sce,
+                             zorder=20))
+                else:
+                     sclist.append(ax.scatter(x, y, s = scattersize,
+                                     c = scf,
+                                     edgecolors = sce,
+                                     zorder=20))
+
     elif grouped == True:
         for x, Yarray, scf, sce in zip(xvals, data, scfacecolorArray, scedgecolorArray):
             for y in np.transpose(Yarray.tolist()):

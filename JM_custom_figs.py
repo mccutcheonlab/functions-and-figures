@@ -60,10 +60,17 @@ def barscatter(data, transpose = False, unequal=False,
     if unequal == True:
         dims = np.ndim(data)
         data_obj = np.ndarray((np.shape(data)), dtype=np.object)
-        for i1, dim1 in enumerate(data):
-            for i2, dim2 in enumerate(dim1):
-                data_obj[i1][i2] = np.array(dim2, dtype=np.object)
-        data = data_obj
+        if dims == 1:
+            for i, dim in enumerate(data):
+                data_obj[i] = np.array(dim, dtype=np.object)
+            data = data_obj
+        elif dims == 2:            
+            for i1, dim1 in enumerate(data):
+                for i2, dim2 in enumerate(dim1):
+                    data_obj[i1][i2] = np.array(dim2, dtype=np.object)
+            data = data_obj
+        else:
+            print('Cannot convert that number of dimensions or data is in wrong format. Attmepting to make graph assuming equal groups.')
     
     if type(data) != np.ndarray or data.dtype != np.object:
         dims = np.shape(data)

@@ -39,44 +39,44 @@ dataMnorAcq2 = [[exploration_left_sal_M, exploration_right_sal_M], [exploration_
 #newdata={}
 #for i in [exploration_left_sal_M, exploration_right_sal_M, exploration_fam_sal_M, exploration_nov_sal_M]:
 #    
-def data2objsimple(data):
-    
-    obj = np.array(data, dtype=np.object)
-#    for i,x in enumerate(data):
-#        obj[i] = np.array(x)  
-    return obj
+#def data2objsimple(data):
+#    
+#    obj = np.array(data, dtype=np.object)
+##    for i,x in enumerate(data):
+##        obj[i] = np.array(x)  
+#    return obj
+#
+#zzz = data2objsimple(exploration_left_sal_M)
+#yyy = data2objsimple(exploration_right_sal_M)
+#aaa = data2objsimple(exploration_left_pcp_M)
+#bbb = data2objsimple(exploration_right_pcp_M)
+#
+#www = np.ndarray((2,2), dtype=np.object)
+#for idx1, dim1 in enumerate([zzz, yyy]):
+#    for idx2, dim2 in enumerate([aaa, bbb]):
+#        www[idx1][idx2] = print(idx)
+##    www[idx] = array
+#
+#data = dataMnorAcq2
+#data2 = dataMnorAcq
+#dim = np.ndim(data)
 
-zzz = data2objsimple(exploration_left_sal_M)
-yyy = data2objsimple(exploration_right_sal_M)
-aaa = data2objsimple(exploration_left_pcp_M)
-bbb = data2objsimple(exploration_right_pcp_M)
-
-www = np.ndarray((2,2), dtype=np.object)
-for idx1, dim1 in enumerate([zzz, yyy]):
-    for idx2, dim2 in enumerate([aaa, bbb]):
-        www[idx1][idx2] = print(idx)
-#    www[idx] = array
-
-data = dataMnorAcq2
-data2 = dataMnorAcq
-dim = np.ndim(data)
 
 
-
-if dim == 1:
-    try:
-        len(data[0])
-        dim = 2
-        print('Extra dimension', dim)
-    except TypeError:
-        print('Fully flattened - one dimension')
-
-if dim == 2:
-    try:
-        len(data[0][0])
-        print('Extra dimension')
-    except TypeError:
-        print('Two dimensions total')
+#if dim == 1:
+#    try:
+#        len(data[0])
+#        dim = 2
+#        print('Extra dimension', dim)
+#    except TypeError:
+#        print('Fully flattened - one dimension')
+#
+#if dim == 2:
+#    try:
+#        len(data[0][0])
+#        print('Extra dimension')
+#    except TypeError:
+#        print('Two dimensions total')
             
 #converteddata = 
 #        
@@ -84,5 +84,5 @@ if dim == 2:
 #
 #
 #jmf.barscatter(dataMnorAcq2, barfacecolor=barcolors, barfacecoloroption='individual',  ylabel='Time (s)', barlabels=labels)
-#
-#jmf.barscatter(dataMnorAcq, barfacecolor=barcolors, barfacecoloroption='individual',  ylabel='Time (s)', barlabels=labels)
+
+jmf.barscatter(dataMnorAcq, unequal=True, barfacecolor=barcolors, barfacecoloroption='individual',  ylabel='Time (s)', barlabels=labels)

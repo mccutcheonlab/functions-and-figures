@@ -27,7 +27,7 @@ for i in barlist1[1].get_children():
     i.set_color('g')
 
 """
-def barscatter(data, transpose = False,
+def barscatter(data, transpose = False, unequal=False,
                 groupwidth = .75,
                 barwidth = .9,
                 paired = False,
@@ -57,6 +57,14 @@ def barscatter(data, transpose = False,
                 legendloc='upper right',
                 ax=[]):
 
+    if unequal == True:
+        dims = np.ndim(data)
+        data_obj = np.ndarray((np.shape(data)), dtype=np.object)
+        for i1, dim1 in enumerate(data):
+            for i2, dim2 in enumerate(dim1):
+                data_obj[i1][i2] = np.array(dim2, dtype=np.object)
+        data = data_obj
+    
     if type(data) != np.ndarray or data.dtype != np.object:
         dims = np.shape(data)
         if len(dims) == 2 or len(dims) == 1:

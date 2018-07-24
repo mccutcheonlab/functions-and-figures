@@ -36,6 +36,7 @@ labels = ['salL','salR', 'pcpL', 'pcpR']
 
 dataMnorAcq2 = [[exploration_left_sal_M, exploration_right_sal_M], [exploration_fam_sal_M, exploration_nov_sal_M]]
 
+data3 = [exploration_left_sal_M, exploration_right_pcp_M]
 #newdata={}
 #for i in [exploration_left_sal_M, exploration_right_sal_M, exploration_fam_sal_M, exploration_nov_sal_M]:
 #    
@@ -85,4 +86,4 @@ dataMnorAcq2 = [[exploration_left_sal_M, exploration_right_sal_M], [exploration_
 #
 #jmf.barscatter(dataMnorAcq2, barfacecolor=barcolors, barfacecoloroption='individual',  ylabel='Time (s)', barlabels=labels)
 
-jmf.barscatter(dataMnorAcq, unequal=True, barfacecolor=barcolors, barfacecoloroption='individual',  ylabel='Time (s)', barlabels=labels)
+jmf.barscatter(data3, unequal=True, barfacecolor=barcolors, barfacecoloroption='individual',  ylabel='Time (s)', barlabels=labels)

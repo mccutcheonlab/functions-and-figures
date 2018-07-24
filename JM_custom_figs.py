@@ -7,7 +7,8 @@ Created on Sat Apr 29 14:11:45 2017
 
 import numpy as np
 import matplotlib.pyplot as plt
-from itertools import chain
+from itertools import chain, count
+from collections import Sequence
 """
 This function will create bar+scatter plots when passed a 1 or 2 dimensional
 array. Data needs to be passed in as a numpy object array, e.g.
@@ -305,7 +306,12 @@ def data2obj2D(data):
             obj[i][j] = np.array(y)
     return obj
 
-
+def depth(seq):
+    for level in count():
+        if not seq:
+            return level
+        seq = list(chain.from_iterable(s for s in seq if isinstance(s, Sequence)))
+        
 # Arguments to include in function
 
 def trialsFig(ax, trials, pps=1, preTrial=10, scale=5, noiseindex = [],

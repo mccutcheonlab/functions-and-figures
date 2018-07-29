@@ -12,6 +12,8 @@ import numpy as np
 import timeit
 import random
 import matplotlib.pyplot as plt
+import xlrd
+import csv
 
 
 """
@@ -61,6 +63,21 @@ def medfilereader(filename, varsToExtract = 'all',
         varsToReturn = varsToReturn[0]
     return varsToReturn
 
+def metafilemaker(xlfile, metafilename, sheetname='metafile', fileformat='csv'):
+    with xlrd.open_workbook(xlfile) as wb:
+        sh = wb.sheet_by_name(sheetname)  # or wb.sheet_by_name('name_of_the_sheet_here')
+        
+        if fileformat == 'csv':
+            with open(metafilename+'.csv', 'w', newline="") as f:
+                c = csv.writer(f)
+                for r in range(sh.nrows):
+                    c.writerow(sh.row_values(r))
+        if fileformat == 'txt':
+            with open(metafilename+'.txt', 'w', newline="") as f:
+                c = csv.writer(f, delimiter="\t")
+                for r in range(sh.nrows):
+                    c.writerow(sh.row_values(r))
+    
 def metafilereader(filename):
     
     f = open(filename, 'r')

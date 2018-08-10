@@ -187,7 +187,7 @@ def barscatter(data, transpose = False, unequal=False,
         for n,_ in enumerate(data[0]):
             y = [y[n-1] for y in data]
             sclist.append(ax.plot(xvals, y, '-o', markersize = scattersize/10,
-                         color = 'grey',
+                         color = scatterlinecolor,
                          linewidth=linewidth,
                          markerfacecolor = scfacecolorArray[0],
                          markeredgecolor = scedgecolorArray[0],

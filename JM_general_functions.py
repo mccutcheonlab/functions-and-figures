@@ -14,6 +14,7 @@ import random
 import matplotlib.pyplot as plt
 import xlrd
 import csv
+import os
 
 
 """
@@ -538,3 +539,7 @@ def discrete2continuous(onset, offset=[], nSamples=[], fs=[]):
             outputy[start:stop] = 1
 
     return outputx, outputy
+
+def getuserhome():
+    path = os.environ['USERPROFILE']
+    return path

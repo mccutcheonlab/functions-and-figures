@@ -195,10 +195,10 @@ def barscatter(data, transpose = False, unequal=False,
     
     # Label axes
     if ylabel != 'none':
-        plt.ylabel(ylabel)
+        ax.set_ylabel(ylabel)
     
     if xlabel != 'none':
-        plt.xlabel(xlabel)
+        ax.set_xlabel(xlabel)
     
     # Set range and tick values for Y axis
     if yaxisparams != 'auto':
@@ -213,16 +213,17 @@ def barscatter(data, transpose = False, unequal=False,
         top='off') # labels along the bottom edge are off
 
     if grouplabel == 'auto':
-        plt.tick_params(labelbottom='off')
+        ax.tick_params(labelbottom='off')
     else:
         if len(barlabels) > 0:
-            plt.tick_params(labelbottom='off')
+            ax.tick_params(labelbottom='off')
             yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
             offset = ax.get_ylim()[0] - yrange*grouplabeloffset
             for idx, label in enumerate(grouplabel):
                 ax.text(idx+1, offset, label, va='top', ha='center')
         else:
-            plt.xticks(range(1,nGroups+1), grouplabel)
+            ax.set_xticks(range(1,nGroups+1))
+            ax.set_xticklabels(grouplabel)
         
     if len(barlabels) > 0:
         if len(barlabels) != len(barx):

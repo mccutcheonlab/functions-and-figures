@@ -45,13 +45,15 @@ def barscatter(data, transpose = False, unequal=False,
                 scattersize = 80,
                 scatteralpha = 1,
                 linewidth=1,
+                xlim=[],
+                ylim=[],
                 ylabel = 'none',
                 xlabel = 'none',
                 grouplabel = 'auto',
                 itemlabel = 'none',
                 barlabels = [],
-                barlabeloffset=0.1,
-                grouplabeloffset=0.2,
+                barlabeloffset=0.025,
+                grouplabeloffset=0.11,
                 yaxisparams = 'auto',
                 show_legend = 'none',
                 legendloc='upper right',
@@ -200,6 +202,9 @@ def barscatter(data, transpose = False, unequal=False,
     if xlabel != 'none':
         ax.set_xlabel(xlabel)
     
+    xrange = ax.get_xlim()[1] - ax.get_xlim()[0]
+    yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
+    
     # Set range and tick values for Y axis
     if yaxisparams != 'auto':
         ax.set_ylim(yaxisparams[0])
@@ -212,15 +217,23 @@ def barscatter(data, transpose = False, unequal=False,
         bottom='off',      # ticks along the bottom edge are off
         top='off') # labels along the bottom edge are off
 
+    if len(xlim) > 0:
+        ax.set_xlim(xlim)
+    if len(ylim) > 0:
+        ax.set_ylim(ylim)
+        
     if grouplabel == 'auto':
         ax.tick_params(labelbottom='off')
     else:
         if len(barlabels) > 0:
             ax.tick_params(labelbottom='off')
-            yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
-            offset = ax.get_ylim()[0] - yrange*grouplabeloffset
-            for idx, label in enumerate(grouplabel):
-                ax.text(idx+1, offset, label, va='top', ha='center')
+
+            groupx = np.arange(1, len(grouplabel)+1)
+            xpos = (groupx - ax.get_xlim()[0])/xrange
+            ypos = (-ax.get_ylim()[0]/yrange) - grouplabeloffset
+
+            for x, label in zip(xpos, grouplabel):
+                ax.text(x, ypos, label, va='top', ha='center', transform=ax.transAxes)
         else:
             ax.set_xticks(range(1,nGroups+1))
             ax.set_xticklabels(grouplabel)
@@ -229,10 +242,10 @@ def barscatter(data, transpose = False, unequal=False,
         if len(barlabels) != len(barx):
             print('Wrong number of bar labels for number of bars!')
         else:
-            yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
-            offset = ax.get_ylim()[0] - yrange*barlabeloffset
-            for x, label in zip(barx, barlabels):
-                ax.text(x, offset, label, va='top', ha='center')
+            xpos = (barx - ax.get_xlim()[0])/xrange
+            ypos = (-ax.get_ylim()[0]/yrange) - barlabeloffset
+            for x, label in zip(xpos, barlabels):
+                ax.text(x, ypos, label, va='top', ha='center', transform=ax.transAxes)
     
     # Hide the right and top spines and set bottom to zero
     ax.spines['right'].set_visible(False)

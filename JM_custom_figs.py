@@ -713,3 +713,15 @@ def shadedError(ax, yarray, linecolor='black', errorcolor = 'xkcd:silver'):
     ax.fill_between(x, y-yerror, y+yerror, color=errorcolor, alpha=0.4)
     
     return ax
+
+def ax2prop(axlims, n):
+    """
+    axlims should be provided as result of ax.get_xlims()
+    n should be a list of values to convert
+    """
+    axrange = axlims[1] - axlims[0]
+    output = []
+    for n in n:
+        output.append((n - axlims[0])/axrange)
+        
+    return output

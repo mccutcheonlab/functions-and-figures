@@ -352,7 +352,7 @@ def trialsFig(ax, trials, pps=1, preTrial=10, scale=5, noiseindex = [],
         trialsNoise = np.array([i for (i,v) in zip(trials, noiseindex) if v])
         trials = np.array([i for (i,v) in zip(trials, noiseindex) if not v])
         if plotnoise == True:
-            ax.plot(trialsNoise.transpose(), c='red', alpha=0.4)
+            ax.plot(trialsNoise.transpose(), c='red', alpha=0.1)
         
     ax.plot(trials.transpose(), c='grey', alpha=0.4)
     ax.plot(np.mean(trials,axis=0), c='k', linewidth=2)

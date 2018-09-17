@@ -219,31 +219,34 @@ def mastersnipper(x, events,
                   threshold=10,
                   peak_between_time=[0, 1],
                   output_as_dict = True):
+    if len(events) < 1:
+        print('Cannot find any events. All outputs will be empty.')
+        blueTrials, uvTrials, noiseindex, diffTrials, peak = ([] for i in range(5))
+    else:
+        blueTrials,_ = snipper(x.data, events,
+                                   t2sMap=x.t2sMap,
+                                   fs=x.fs,
+                                   bins=bins,
+                                   preTrial=preTrial,
+                                   trialLength=trialLength)        
+        uvTrials,_ = snipper(x.dataUV, events,
+                                   t2sMap=x.t2sMap,
+                                   fs=x.fs,
+                                   bins=bins,
+                                   preTrial=preTrial,
+                                   trialLength=trialLength) 
+        bgMAD = findnoise(x.data, x.randomevents,
+                              t2sMap=x.t2sMap, fs=x.fs, bins=bins,
+                              method='sum')        
+        sigSum = [np.sum(abs(i)) for i in blueTrials]
+        sigSD = [np.std(i) for i in blueTrials]
+        noiseindex = [i > bgMAD*threshold for i in sigSum]
     
-    blueTrials,_ = snipper(x.data, events,
-                               t2sMap=x.t2sMap,
-                               fs=x.fs,
-                               bins=bins,
-                               preTrial=preTrial,
-                               trialLength=trialLength)        
-    uvTrials,_ = snipper(x.dataUV, events,
-                               t2sMap=x.t2sMap,
-                               fs=x.fs,
-                               bins=bins,
-                               preTrial=preTrial,
-                               trialLength=trialLength) 
-    bgMAD = findnoise(x.data, x.randomevents,
-                          t2sMap=x.t2sMap, fs=x.fs, bins=bins,
-                          method='sum')        
-    sigSum = [np.sum(abs(i)) for i in blueTrials]
-    sigSD = [np.std(i) for i in blueTrials]
-    noiseindex = [i > bgMAD*threshold for i in sigSum]
-
-    diffTrials = findphotodiff(blueTrials, uvTrials, noiseindex)
-    bin2s = bins/trialLength
-    peakbins = [int((preTrial+peak_between_time[0])*bin2s),
-                int((preTrial+peak_between_time[1])*bin2s)]
-    peak = [np.mean(trial[peakbins[0]:peakbins[1]]) for trial in diffTrials]
+        diffTrials = findphotodiff(blueTrials, uvTrials, noiseindex)
+        bin2s = bins/trialLength
+        peakbins = [int((preTrial+peak_between_time[0])*bin2s),
+                    int((preTrial+peak_between_time[1])*bin2s)]
+        peak = [np.mean(trial[peakbins[0]:peakbins[1]]) for trial in diffTrials]
         
     if output_as_dict == True:
         output = {}
@@ -254,7 +257,7 @@ def mastersnipper(x, events,
         output['peak'] = peak
         return output
     else:
-        return blueTrials, uvTrials, noiseindex, diffTrials
+        return blueTrials, uvTrials, noiseindex, diffTrials, peak
  
 """
 This function will check for traces that are outliers or contain a large amount

@@ -166,7 +166,7 @@ def snipper(data, timelock, fs = 1, t2sMap = [], preTrial=10, trialLength=30,
     if len(timelock) == 0:
         print('No events to analyse! Quitting function.')
         raise Exception('no events')
-    nSnips = len(timelock)
+
     pps = int(fs) # points per sample
     pre = int(preTrial*pps) 
 #    preABS = preTrial
@@ -179,13 +179,19 @@ def snipper(data, timelock, fs = 1, t2sMap = [], preTrial=10, trialLength=30,
     else:
         event = [x*fs for x in timelock]
 
-    avgBaseline = []
+    new_events = []
+    for x in event:
+        if int(x-pre) > 0:
+            new_events.append(x)
+    event = new_events
+
+    nSnips = len(event)
     snips = np.empty([nSnips,length])
+    avgBaseline = []
 
     for i, x in enumerate(event):
         start = int(x) - pre
         avgBaseline.append(np.mean(data[start : start + pre]))
-#        print(x)
         try:
             snips[i] = data[start : start+length]
         except ValueError: # Deals with recording arrays that do not have a full final trial

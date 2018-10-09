@@ -224,10 +224,12 @@ def mastersnipper(x, events,
                   trialLength=30,
                   threshold=10,
                   peak_between_time=[0, 1],
-                  output_as_dict = True):
+                  output_as_dict=True,
+                  latency_event=[],
+                  latency_direction='pre'):
     if len(events) < 1:
         print('Cannot find any events. All outputs will be empty.')
-        blueTrials, uvTrials, noiseindex, diffTrials, peak = ([] for i in range(5))
+        blueTrials, uvTrials, noiseindex, diffTrials, peak, latency = ([] for i in range(5))
     else:
         blueTrials,_ = snipper(x.data, events,
                                    t2sMap=x.t2sMap,
@@ -254,6 +256,19 @@ def mastersnipper(x, events,
                     int((preTrial+peak_between_time[1])*bin2s)]
         peak = [np.mean(trial[peakbins[0]:peakbins[1]]) for trial in diffTrials]
         
+        latency = []
+        try:
+            pre_events = x.latency_event
+            for event in events:
+                if latency_direction == 'pre':
+                    latency.append(np.abs([lat-event for lat in pre_events if lat-event<0]).min())
+                elif latency_direction == 'post':
+                    latency.append(np.abs([lat-event for lat in pre_events if lat-event>0]).min())
+                else:
+                    latency.append(np.abs([lat-event for lat in pre_events]).min())
+        except KeyError:
+            print('No latency events found')
+
     if output_as_dict == True:
         output = {}
         output['blue'] = blueTrials
@@ -261,9 +276,10 @@ def mastersnipper(x, events,
         output['noise'] = noiseindex
         output['diff'] = diffTrials
         output['peak'] = peak
+        output['latency'] = latency
         return output
     else:
-        return blueTrials, uvTrials, noiseindex, diffTrials, peak
+        return blueTrials, uvTrials, noiseindex, diffTrials, peak, latency
  
 """
 This function will check for traces that are outliers or contain a large amount

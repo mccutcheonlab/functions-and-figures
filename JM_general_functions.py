@@ -225,7 +225,7 @@ def mastersnipper(x, events,
                   threshold=10,
                   peak_between_time=[0, 1],
                   output_as_dict=True,
-                  latency_event=[],
+                  latency_events=[],
                   latency_direction='pre'):
     if len(events) < 1:
         print('Cannot find any events. All outputs will be empty.')
@@ -258,15 +258,15 @@ def mastersnipper(x, events,
         
         latency = []
         try:
-            pre_events = x.latency_event
             for event in events:
                 if latency_direction == 'pre':
-                    latency.append(np.abs([lat-event for lat in pre_events if lat-event<0]).min())
+                    latency.append(np.abs([lat-event for lat in latency_events if lat-event<0]).min())
                 elif latency_direction == 'post':
-                    latency.append(np.abs([lat-event for lat in pre_events if lat-event>0]).min())
+                    latency.append(np.abs([lat-event for lat in latency_events if lat-event>0]).min())
                 else:
-                    latency.append(np.abs([lat-event for lat in pre_events]).min())
-        except KeyError:
+                    latency.append(np.abs([lat-event for lat in latency_events]).min())
+            latency = [x for x in  latency if x<30]
+        except ValueError:
             print('No latency events found')
 
     if output_as_dict == True:

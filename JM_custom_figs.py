@@ -9,6 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import chain, count
 from collections import Sequence
+import matplotlib.cbook as cbook
+import matplotlib.mlab as mlab
 """
 This function will create bar+scatter plots when passed a 1 or 2 dimensional
 array. Data needs to be passed in as a numpy object array, e.g.
@@ -744,3 +746,15 @@ def lighten_color(color, amount=0.5):
         c = color
     c = colorsys.rgb_to_hls(*mc.to_rgb(c))
     return colorsys.hls_to_rgb(c[0], 1 - amount * (1 - c[1]), c[2])
+
+def get_violinstats(dataset, points=100, bw_method=None):
+
+    def _kde_method(X, coords):
+        # fallback gracefully if the vector contains only one value
+        if np.all(X[0] == X):
+            return (X[0] == coords).astype(float)
+        kde = mlab.GaussianKDE(X, bw_method)
+        return kde.evaluate(coords)
+
+    vpstats = cbook.violin_stats(dataset, _kde_method, points=points)
+    return vpstats

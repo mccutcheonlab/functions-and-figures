@@ -581,3 +581,11 @@ def data2obj1D(data):
     for i,x in enumerate(data):
         obj[i] = np.array(x)  
     return obj
+
+def flatten_list(listoflists):
+    try:
+        flat_list = [item for sublist in listoflists for item in sublist]
+        return flat_list
+    except:
+        print('Cannot flatten list. Maybe is in the wrong format. Returning empty list.')
+        return []

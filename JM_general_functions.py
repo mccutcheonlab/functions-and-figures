@@ -265,7 +265,9 @@ def mastersnipper(x, events,
                     latency.append(np.abs([lat-event for lat in latency_events if lat-event>0]).min())
                 else:
                     latency.append(np.abs([lat-event for lat in latency_events]).min())
-            latency = [x for x in  latency if x<30]
+#            latency = [x if (x<30) else None for x in latency]
+            latency = np.asarray(latency)
+            latency[latency>30] = np.nan
         except ValueError:
             print('No latency events found')
 

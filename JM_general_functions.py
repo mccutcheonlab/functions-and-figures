@@ -591,3 +591,16 @@ def flatten_list(listoflists):
     except:
         print('Cannot flatten list. Maybe is in the wrong format. Returning empty list.')
         return []
+    
+def findpercentilevalue(data, percentile):
+
+    if (0 < percentile) and (percentile <= 1):
+        position = int(percentile*len(data))
+    else:
+        print('Value for percentile must be between 0 and 1')
+        return
+
+    sorteddata = np.sort(data)
+    value = sorteddata[position-1]
+    
+    return value

@@ -708,7 +708,7 @@ def invisible_axes(ax):
 
 def shadedError(ax, yarray, linecolor='black', errorcolor = 'xkcd:silver'):
     yarray = np.array(yarray)
-    y = np.mean(yarray)
+    y = np.mean(yarray, axis=0)
     yerror = np.std(yarray)/np.sqrt(len(yarray))
     x = np.arange(0, len(y))
     ax.plot(x, y, color=linecolor)

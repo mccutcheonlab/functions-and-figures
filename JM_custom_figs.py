@@ -210,7 +210,7 @@ def barscatter(data, transpose = False, unequal=False,
     # Set range and tick values for Y axis
     if yaxisparams != 'auto':
         ax.set_ylim(yaxisparams[0])
-        plt.yticks(yaxisparams[1])
+        ax.set_yticks(yaxisparams[1])
        
     # X ticks
     ax.tick_params(
@@ -232,10 +232,10 @@ def barscatter(data, transpose = False, unequal=False,
 
             groupx = np.arange(1, len(grouplabel)+1)
             xpos = (groupx - ax.get_xlim()[0])/xrange
-            ypos = (-ax.get_ylim()[0]/yrange) - grouplabeloffset
 
             for x, label in zip(xpos, grouplabel):
-                ax.text(x, ypos, label, va='top', ha='center', transform=ax.transAxes)
+                ax.text(x, -0.05, label, va='top', ha='center', transform=ax.transAxes)
+                
         else:
             ax.set_xticks(range(1,nGroups+1))
             ax.set_xticklabels(grouplabel)
@@ -246,6 +246,7 @@ def barscatter(data, transpose = False, unequal=False,
         else:
             xpos = (barx - ax.get_xlim()[0])/xrange
             ypos = (-ax.get_ylim()[0]/yrange) - barlabeloffset
+
             for x, label in zip(xpos, barlabels):
                 ax.text(x, ypos, label, va='top', ha='center', transform=ax.transAxes)
     

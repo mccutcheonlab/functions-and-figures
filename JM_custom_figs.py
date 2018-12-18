@@ -55,7 +55,7 @@ def barscatter(data, transpose = False, unequal=False,
                 itemlabel = 'none',
                 barlabels = [],
                 barlabeloffset=0.025,
-                grouplabeloffset=0.11,
+                grouplabeloffset=0,
                 yaxisparams = 'auto',
                 show_legend = 'none',
                 legendloc='upper right',
@@ -227,18 +227,13 @@ def barscatter(data, transpose = False, unequal=False,
     if grouplabel == 'auto':
         ax.tick_params(labelbottom='off')
     else:
-        if len(barlabels) > 0:
-            ax.tick_params(labelbottom='off')
+        ax.tick_params(labelbottom='off')
 
-            groupx = np.arange(1, len(grouplabel)+1)
-            xpos = (groupx - ax.get_xlim()[0])/xrange
+        groupx = np.arange(1, len(grouplabel)+1)
+        xpos = (groupx - ax.get_xlim()[0])/xrange
 
-            for x, label in zip(xpos, grouplabel):
-                ax.text(x, -0.05, label, va='top', ha='center', transform=ax.transAxes)
-                
-        else:
-            ax.set_xticks(range(1,nGroups+1))
-            ax.set_xticklabels(grouplabel)
+        for x, label in zip(xpos, grouplabel):
+            ax.text(x, -0.05+grouplabeloffset, label, va='top', ha='center', transform=ax.transAxes)
         
     if len(barlabels) > 0:
         if len(barlabels) != len(barx):

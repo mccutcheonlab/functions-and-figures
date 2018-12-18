@@ -236,13 +236,38 @@ def mastersnipper(x, events,
                                    fs=x.fs,
                                    bins=bins,
                                    preTrial=preTrial,
-                                   trialLength=trialLength)        
+                                   trialLength=trialLength)
+        blueTrials_raw,_ = snipper(x.data, events,
+                                   t2sMap=x.t2sMap,
+                                   fs=x.fs,
+                                   bins=bins,
+                                   preTrial=preTrial,
+                                   trialLength=trialLength,
+                                   adjustBaseline = False)
         uvTrials,_ = snipper(x.dataUV, events,
                                    t2sMap=x.t2sMap,
                                    fs=x.fs,
                                    bins=bins,
                                    preTrial=preTrial,
-                                   trialLength=trialLength) 
+                                   trialLength=trialLength)
+        uvTrials_raw,_ = snipper(x.dataUV, events,
+                                   t2sMap=x.t2sMap,
+                                   fs=x.fs,
+                                   bins=bins,
+                                   preTrial=preTrial,
+                                   trialLength=trialLength,
+                                   adjustBaseline = False)
+        blueTrials_processed,_ = snipper(x.data_filt, events,
+                                   t2sMap=x.t2sMap,
+                                   fs=x.fs,
+                                   bins=bins,
+                                   preTrial=preTrial,
+                                   trialLength=trialLength,
+                                   adjustBaseline = False)
+        
+        blueTrials_z = zscore(blueTrials_processed)
+        uvTrials_z = zscore(uvTrials_raw)
+        
         bgMAD = findnoise(x.data, x.randomevents,
                               t2sMap=x.t2sMap, fs=x.fs, bins=bins,
                               method='sum')        
@@ -274,15 +299,30 @@ def mastersnipper(x, events,
     if output_as_dict == True:
         output = {}
         output['blue'] = blueTrials
+        output['blue_raw'] = blueTrials_raw
+        output['blue_z'] = blueTrials_z
         output['uv'] = uvTrials
+        output['uv_raw'] = uvTrials_raw
+        output['uv_z'] = uvTrials_z
         output['noise'] = noiseindex
         output['diff'] = diffTrials
         output['peak'] = peak
         output['latency'] = latency
         return output
     else:
-        return blueTrials, uvTrials, noiseindex, diffTrials, peak, latency
- 
+        return blueTrials, blueTrials_raw, blueTrials_z, uvTrials, uvTrials_raw, uvTrials_z, noiseindex, diffTrials, peak, latency
+
+def zscore(snips, baseline_points=100):
+    
+    BL_range = range(baseline_points)
+    z_snips = []
+    for i in snips:
+        mean = np.mean(i[BL_range])
+        sd = np.std(i[BL_range])
+        z_snips.append([(x-mean)/sd for x in i])
+        
+    return z_snips
+
 """
 This function will check for traces that are outliers or contain a large amount
 of noise, relative to other trials (or relative to the whole data file.

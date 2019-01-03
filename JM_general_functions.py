@@ -279,7 +279,7 @@ def mastersnipper(x, events,
         bin2s = bins/trialLength
         peakbins = [int((preTrial+peak_between_time[0])*bin2s),
                     int((preTrial+peak_between_time[1])*bin2s)]
-        peak = [np.mean(trial[peakbins[0]:peakbins[1]]) for trial in diffTrials]
+        peak = [np.mean(trial[peakbins[0]:peakbins[1]]) for trial in blueTrials_z]
         
         latency = []
         try:

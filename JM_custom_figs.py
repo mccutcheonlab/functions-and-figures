@@ -204,8 +204,7 @@ def barscatter(data, transpose = False, unequal=False,
     if xlabel != 'none':
         ax.set_xlabel(xlabel)
     
-    xrange = ax.get_xlim()[1] - ax.get_xlim()[0]
-    yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
+
     
     # Set range and tick values for Y axis
     if yaxisparams != 'auto':
@@ -224,12 +223,17 @@ def barscatter(data, transpose = False, unequal=False,
     if len(ylim) > 0:
         ax.set_ylim(ylim)
         
+    xrange = ax.get_xlim()[1] - ax.get_xlim()[0]
+    yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
+        
     if grouplabel == 'auto':
         ax.tick_params(labelbottom='off')
     else:
         ax.tick_params(labelbottom='off')
 
         groupx = np.arange(1, len(grouplabel)+1)
+        if len(xlim) > 0:
+            groupx = [x for x in groupx]
         xpos = (groupx - ax.get_xlim()[0])/xrange
 
         for x, label in zip(xpos, grouplabel):
@@ -244,7 +248,7 @@ def barscatter(data, transpose = False, unequal=False,
 
             for x, label in zip(xpos, barlabels):
                 ax.text(x, ypos, label, va='top', ha='center', transform=ax.transAxes)
-    
+
     # Hide the right and top spines and set bottom to zero
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)

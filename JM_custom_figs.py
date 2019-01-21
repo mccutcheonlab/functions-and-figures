@@ -34,6 +34,8 @@ def barscatter(data, transpose = False, unequal=False,
                 barwidth = .9,
                 paired = False,
                 spaced = False,
+                spaceY = 0.5,
+                spaceX = 0.03,
                 barfacecoloroption = 'same', # other options 'between' or 'individual'
                 barfacecolor = ['white'],
                 baredgecoloroption = 'same',
@@ -46,6 +48,7 @@ def barscatter(data, transpose = False, unequal=False,
                 scatterlinecolor = 'grey', # Don't put this value in a list
                 scattersize = 80,
                 scatteralpha = 1,
+                spreadscatters = False,
                 linewidth=1,
                 xlim=[],
                 ylim=[],
@@ -164,15 +167,18 @@ def barscatter(data, transpose = False, unequal=False,
     # Make scatters
     sclist = []
     if paired == False:
+        print(xvals)
+        print(data)
         for x, Yarray, scf, sce  in zip(xvals.flatten(), data.flatten(),
                                         scfacecolorArray, scedgecolorArray):
-            for y in Yarray:
-                if spaced == True:
-                    sclist.append(ax.scatter(x+np.random.random(size=1)*barallocation, y, s = scattersize,
+            if spaced == True:
+                xVals, yVals = xyspacer(x, Yarray, spaceY, spaceX)
+                sclist.append(ax.scatter(xVals, yVals, s = scattersize,
                              c = scf,
                              edgecolors = sce,
-                             zorder=20))
-                else:
+                             zorder=20))           
+            else:
+                for y in Yarray:
                      sclist.append(ax.scatter(x, y, s = scattersize,
                                      c = scf,
                                      edgecolors = sce,
@@ -203,8 +209,6 @@ def barscatter(data, transpose = False, unequal=False,
     
     if xlabel != 'none':
         ax.set_xlabel(xlabel)
-    
-
     
     # Set range and tick values for Y axis
     if yaxisparams != 'auto':
@@ -337,11 +341,28 @@ def data2obj2D(data):
             obj[i][j] = np.array(y)
     return obj
 
+def xyspacer(x, yvals, distance, spacing):
+
+    xvals = [x]*len(yvals)
+    
+    print(xvals)
+    yvals.sort()
+    closevals = np.diff(yvals)
+    
+    a = [idx for idx, val in enumerate(closevals) if val<distance]
+        
+    for idx, val in enumerate(a):
+        xvals[val] = x-spacing
+        xvals[val+1] = x+spacing
+
+    return xvals, yvals
+
 def depth(seq):
     for level in count():
         if not seq:
             return level
         seq = list(chain.from_iterable(s for s in seq if isinstance(s, Sequence)))
+
         
 # Arguments to include in function
 

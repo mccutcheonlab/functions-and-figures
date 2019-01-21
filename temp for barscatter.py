@@ -86,4 +86,6 @@ data3 = [exploration_left_sal_M, exploration_right_pcp_M]
 #
 #jmf.barscatter(dataMnorAcq2, barfacecolor=barcolors, barfacecoloroption='individual',  ylabel='Time (s)', barlabels=labels)
 
-jmf.barscatter(data3, unequal=True, barfacecolor=barcolors, barfacecoloroption='individual',  ylabel='Time (s)', barlabels=labels)
+
+
+jmf.barscatter(data3, spaced = True, spaceX=0.1,unequal=True, barfacecolor=barcolors, barfacecoloroption='individual',  ylabel='Time (s)', barlabels=labels)

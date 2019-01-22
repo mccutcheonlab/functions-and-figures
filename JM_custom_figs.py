@@ -62,6 +62,7 @@ def barscatter(data, transpose = False, unequal=False,
                 yaxisparams = 'auto',
                 show_legend = 'none',
                 legendloc='upper right',
+                xfontsize=8,
                 ax=[]):
 
     if unequal == True:
@@ -241,7 +242,7 @@ def barscatter(data, transpose = False, unequal=False,
         xpos = (groupx - ax.get_xlim()[0])/xrange
 
         for x, label in zip(xpos, grouplabel):
-            ax.text(x, -0.05+grouplabeloffset, label, va='top', ha='center', transform=ax.transAxes)
+            ax.text(x, -0.05+grouplabeloffset, label, va='top', ha='center', fontsize=xfontsize, transform=ax.transAxes)
         
     if len(barlabels) > 0:
         if len(barlabels) != len(barx):
@@ -251,7 +252,7 @@ def barscatter(data, transpose = False, unequal=False,
             ypos = (-ax.get_ylim()[0]/yrange) - barlabeloffset
 
             for x, label in zip(xpos, barlabels):
-                ax.text(x, ypos, label, va='top', ha='center', transform=ax.transAxes)
+                ax.text(x, ypos, label, va='top', ha='center', fontsize=xfontsize, transform=ax.transAxes)
 
     # Hide the right and top spines and set bottom to zero
     ax.spines['right'].set_visible(False)

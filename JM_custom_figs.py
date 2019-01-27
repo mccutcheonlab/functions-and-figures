@@ -11,6 +11,7 @@ from itertools import chain, count
 from collections import Sequence
 import matplotlib.cbook as cbook
 import matplotlib.mlab as mlab
+import JM_general_functions as jmf
 """
 This function will create bar+scatter plots when passed a 1 or 2 dimensional
 array. Data needs to be passed in as a numpy object array, e.g.
@@ -34,8 +35,8 @@ def barscatter(data, transpose = False, unequal=False,
                 barwidth = .9,
                 paired = False,
                 spaced = False,
-                spaceY = 0.5,
-                spaceX = 0.03,
+                yspace = 20,
+                xspace = 0.1,
                 barfacecoloroption = 'same', # other options 'between' or 'individual'
                 barfacecolor = ['white'],
                 baredgecoloroption = 'same',
@@ -168,12 +169,10 @@ def barscatter(data, transpose = False, unequal=False,
     # Make scatters
     sclist = []
     if paired == False:
-        print(xvals)
-        print(data)
         for x, Yarray, scf, sce  in zip(xvals.flatten(), data.flatten(),
                                         scfacecolorArray, scedgecolorArray):
             if spaced == True:
-                xVals, yVals = xyspacer(x, Yarray, spaceY, spaceX)
+                xVals, yVals = xyspacer(ax, x, Yarray, bindist=yspace, space=xspace)
                 sclist.append(ax.scatter(xVals, yVals, s = scattersize,
                              c = scf,
                              edgecolors = sce,
@@ -342,19 +341,24 @@ def data2obj2D(data):
             obj[i][j] = np.array(y)
     return obj
 
-def xyspacer(x, yvals, distance, spacing):
+def xyspacer(ax, x, yvals, bindist=20, space=0.1):
+    
+    histrange=[]
+    histrange.append(min(ax.get_ylim()[0], min(yvals)))
+    histrange.append(max(ax.get_ylim()[1], max(yvals)))
 
-    xvals = [x]*len(yvals)
+    yhist = np.histogram(yvals, bins=bindist, range=histrange)
     
-    print(xvals)
+    xvals=[]
+    for ybin in yhist[0]:
+        if ybin == 1:
+            xvals.append(x)
+        elif ybin > 1:          
+            temp_vals = np.linspace(x-space, x+space, num=ybin)
+            for val in temp_vals:
+                xvals.append(val)
+                
     yvals.sort()
-    closevals = np.diff(yvals)
-    
-    a = [idx for idx, val in enumerate(closevals) if val<distance]
-        
-    for idx, val in enumerate(a):
-        xvals[val] = x-spacing
-        xvals[val+1] = x+spacing
 
     return xvals, yvals
 

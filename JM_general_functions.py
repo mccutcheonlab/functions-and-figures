@@ -266,6 +266,7 @@ def mastersnipper(x, events,
                                    adjustBaseline = False)
         
         blueTrials_z = zscore(blueTrials_processed)
+        blueTrials_z_adjBL = zscore(blueTrials_processed, baseline_points=50)
         uvTrials_z = zscore(uvTrials_raw)
         
         bgMAD = findnoise(x.data, x.randomevents,
@@ -301,6 +302,7 @@ def mastersnipper(x, events,
         output['blue'] = blueTrials
         output['blue_raw'] = blueTrials_raw
         output['blue_z'] = blueTrials_z
+        output['blue_z_adj'] = blueTrials_z_adjBL
         output['uv'] = uvTrials
         output['uv_raw'] = uvTrials_raw
         output['uv_z'] = uvTrials_z
@@ -310,7 +312,7 @@ def mastersnipper(x, events,
         output['latency'] = latency
         return output
     else:
-        return blueTrials, blueTrials_raw, blueTrials_z, uvTrials, uvTrials_raw, uvTrials_z, noiseindex, diffTrials, peak, latency
+        return blueTrials, blueTrials_raw, blueTrials_z, blueTrials_z_adjBL, uvTrials, uvTrials_raw, uvTrials_z, noiseindex, diffTrials, peak, latency
 
 def zscore(snips, baseline_points=100):
     

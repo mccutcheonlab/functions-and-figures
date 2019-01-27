@@ -728,12 +728,12 @@ def invisible_axes(ax):
     for sp in ['left', 'right', 'top', 'bottom']:
         ax.spines[sp].set_visible(False)
 
-def shadedError(ax, yarray, linecolor='black', errorcolor = 'xkcd:silver'):
+def shadedError(ax, yarray, linecolor='black', errorcolor = 'xkcd:silver', linewidth=1):
     yarray = np.array(yarray)
     y = np.mean(yarray, axis=0)
     yerror = np.std(yarray)/np.sqrt(len(yarray))
     x = np.arange(0, len(y))
-    ax.plot(x, y, color=linecolor)
+    ax.plot(x, y, color=linecolor, linewidth=1)
     ax.fill_between(x, y-yerror, y+yerror, color=errorcolor, alpha=0.4)
     
     return ax

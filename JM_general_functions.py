@@ -411,7 +411,8 @@ This function will calculate data for bursts from a train of licks. The threshol
 for bursts and clusters can be set. It returns all data as a dictionary.
 """
 def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10, 
-             binsize=60, histDensity = False, adjustforlonglicks='none'):
+             binsize=60, histDensity = False, adjustforlonglicks='none',
+             minburstlength=1):
     # makes dictionary of data relating to licks and bursts
     if type(licks) != np.ndarray or type(offset) != np.ndarray:
         try:
@@ -457,7 +458,15 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
     lickData['bEnd'] = [lickData['licks'][i-1] for i in lickData['bInd'][1:]]
     lickData['bEnd'].append(lickData['licks'][-1])
 
-    lickData['bLicks'] = np.diff(lickData['bInd'] + [len(lickData['licks'])])    
+    lickData['bLicks'] = np.diff(lickData['bInd'] + [len(lickData['licks'])])
+    
+    # calculates which bursts are above the minimum threshold
+    inds = [i for i, val in enumerate(lickData['bLicks']) if val>minburstlength-1]
+    
+    lickData['bLicks'] = removeshortbursts(lickData['bLicks'], inds)
+    lickData['bStart'] = removeshortbursts(lickData['bStart'], inds)
+    lickData['bEnd'] = removeshortbursts(lickData['bEnd'], inds)
+        
     lickData['bTime'] = np.subtract(lickData['bEnd'], lickData['bStart'])
     lickData['bNum'] = len(lickData['bStart'])
     if lickData['bNum'] > 0:
@@ -488,6 +497,10 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
         print('Problem making histograms of lick data')
         
     return lickData
+
+def removeshortbursts(data, inds):
+    data = [data[i] for i in inds]
+    return data
 
 def findphantomlicks(licks, sipper, delay=0, postsipper=1.5, verbose=True):
     phlicks=[]

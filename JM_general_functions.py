@@ -15,6 +15,9 @@ import matplotlib.pyplot as plt
 import xlrd
 import csv
 import os
+import scipy.optimize as opt
+import scipy.stats as stats
+import sys
 
 
 """
@@ -510,7 +513,7 @@ def findfirst(events, afterEvent = True):
 This function will calculate data for bursts from a train of licks. The threshold
 for bursts and clusters can be set. It returns all data as a dictionary.
 """
-def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
+def lickCalc(licks, offset = [], burstThreshold = 0.5, runThreshold = 10,
              ignorelongilis=True, minburstlength=1,
              binsize=60, histDensity = False):
     # makes dictionary of data relating to licks and bursts
@@ -576,13 +579,19 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
     lickData['rNum'] = len(lickData['rStart'])
 
     lickData['rILIs'] = [x for x in lickData['ilis'] if x > runThreshold]
-    
-    xdata, ydata = calculate_burst_prob(lickData['bLicks'])
-    
-    lickData['weib_alpha'], lickData['weib_beta'], lickData['weib_rsq'] = fit_weibull(xdata, ydata)
-    
-    lickData['burstprob']=[xdata, ydata]
-    
+    try:
+        xdata, ydata = calculate_burst_prob(lickData['bLicks'])
+        try:
+            lickData['weib_alpha'], lickData['weib_beta'], lickData['weib_rsq'] = fit_weibull(xdata, ydata)
+        except RuntimeError:
+            print('Optimal fit parameters not found')
+            lickData['weib_alpha'], lickData['weib_beta'], lickData['weib_rsq'] = [0, 0, 0]
+            
+        lickData['burstprob']=[xdata, ydata]
+    except ValueError:
+        print('Could not calculate burst probability')
+        lickData['weib_alpha'], lickData['weib_beta'], lickData['weib_rsq'] = [0, 0, 0]
+        lickData['burstprob']=[[0], [0]]
     try:
         lickData['hist'] = np.histogram(lickData['licks'][1:], 
                                     range=(0, 3600), bins=int((3600/binsize)),

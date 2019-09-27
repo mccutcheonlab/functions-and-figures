@@ -510,9 +510,9 @@ def findfirst(events, afterEvent = True):
 This function will calculate data for bursts from a train of licks. The threshold
 for bursts and clusters can be set. It returns all data as a dictionary.
 """
-def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10, 
-             binsize=60, histDensity = False, adjustforlonglicks='none',
-             minburstlength=1):
+def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
+             ignorelongilis=True, minburstlength=1,
+             binsize=60, histDensity = False):
     # makes dictionary of data relating to licks and bursts
     if type(licks) != np.ndarray or type(offset) != np.ndarray:
         try:
@@ -523,32 +523,19 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
             return
 
     lickData = {}
-
-    if len(offset) > 0:        
-        lickData['licklength'] = offset - licks[:len(offset)]
+    
+    if len(offset) > 0:
+        lickData['licklength'] = offset - licks
         lickData['longlicks'] = [x for x in lickData['licklength'] if x > 0.3]
     else:
         lickData['licklength'] = []
         lickData['longlicks'] = []
-    
-    if adjustforlonglicks != 'none':
-        if len(lickData['longlicks']) == 0:
-            print('No long licks to adjust for.')
-        else:
-            lickData['median_ll'] = np.median(lickData['licklength'])
-            lickData['licks_adj'] = int(np.sum(lickData['licklength'])/lickData['median_ll'])
-            if adjustforlonglicks == 'interpolate':
-                licks_new = []
-                for l, off in zip(licks, offset):
-                    x = l
-                    while x < off - lickData['median_ll']:
-                        licks_new.append(x)
-                        x = x + lickData['median_ll']
-                licks = licks_new
-        
-    lickData['licks'] = licks
-    lickData['ilis'] = np.diff(np.concatenate([[0], licks]))
-    lickData['shilis'] = [x for x in lickData['ilis'] if x < burstThreshold]
+
+    lickData['licks'] = np.concatenate([[0], licks])
+    lickData['ilis'] = np.diff(lickData['licks'])
+    if ignorelongilis:
+        lickData['ilis'] = [x for x in lickData['ilis'] if x < burstThreshold]
+
     lickData['freq'] = 1/np.mean([x for x in lickData['ilis'] if x < burstThreshold])
     lickData['total'] = len(licks)
     
@@ -566,7 +553,7 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
     lickData['bLicks'] = removeshortbursts(lickData['bLicks'], inds)
     lickData['bStart'] = removeshortbursts(lickData['bStart'], inds)
     lickData['bEnd'] = removeshortbursts(lickData['bEnd'], inds)
-        
+      
     lickData['bTime'] = np.subtract(lickData['bEnd'], lickData['bStart'])
     lickData['bNum'] = len(lickData['bStart'])
     if lickData['bNum'] > 0:
@@ -589,6 +576,13 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
     lickData['rNum'] = len(lickData['rStart'])
 
     lickData['rILIs'] = [x for x in lickData['ilis'] if x > runThreshold]
+    
+    xdata, ydata = calculate_burst_prob(lickData['bLicks'])
+    
+    lickData['weib_alpha'], lickData['weib_beta'], lickData['weib_rsq'] = fit_weibull(xdata, ydata)
+    
+    lickData['burstprob']=[xdata, ydata]
+    
     try:
         lickData['hist'] = np.histogram(lickData['licks'][1:], 
                                     range=(0, 3600), bins=int((3600/binsize)),
@@ -601,6 +595,29 @@ def lickCalc(licks, offset = [], burstThreshold = 0.25, runThreshold = 10,
 def removeshortbursts(data, inds):
     data = [data[i] for i in inds]
     return data
+
+def calculate_burst_prob(bursts):
+    bins = np.arange(min(bursts), max(bursts))
+    hist=np.histogram(bursts, bins=bins, density=True)
+    cumsum=np.cumsum(hist[0])
+
+    x = hist[1][1:]
+    y = [1-val for val in cumsum]
+    
+    return x, y
+
+def weib_davis(x, alpha, beta): 
+    return (np.exp(-(alpha*x)**beta))
+
+def fit_weibull(xdata, ydata):
+    x0=np.array([0.1, 1])
+    fit=opt.curve_fit(weib_davis, xdata, ydata, x0)
+    alpha=fit[0][0]
+    beta=fit[0][1]
+    slope, intercept, r_value, p_value, std_err = stats.linregress(ydata, weib_davis(xdata, alpha, beta))
+    r_squared=r_value**2
+    
+    return alpha, beta, r_squared
 
 def findphantomlicks(licks, sipper, delay=0, postsipper=1.5, verbose=True):
     phlicks=[]
